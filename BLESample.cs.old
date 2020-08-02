@@ -1,0 +1,115 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+
+public class BLESample : MonoBehaviour
+{
+    public static string bleName = "microbitBLE";
+    private BTsocket ble;
+
+    public Text bleLog;
+
+	public string mac;
+
+	public static Vector3 controler;
+	public static bool buttonA, buttonB;
+	void Awake()
+    {
+        BTsocket.requestAndroidPermission();    //get Permission.
+        
+        //creat new ble connect socket gameobject...
+        ble = BTsocket.getNewBTsocket(bleName ,new BTprofile(bleName, "6e40****-b5a3-f393-e0a9-e50e24dcca9e", "0001", "0002", "0003"));
+        
+        //for Lumex 6432 LDM ble
+        //ble = BTsocket.getNewBTsocket("LDM", new BTprofile("LDM", "0000****-0000-1000-8000-00805f9b34fb", "ffe0", "fff4", "fff1"));
+        
+        //delay 3s
+        ble.Invoke("scan", 2f);
+		StartCoroutine(BLEconnect());
+		
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        //print debug log...
+        bleLog.text = ble.BTLog;
+
+
+        //read BLE data... 有新資料時將自動呼叫委派函數，receiveData為收到的新資料
+        //讀取頻率將與Update相同，如需更高頻率需自行建立執行緒或使用其他方式
+        ble.getReceiveText((receiveData) => 
+        {
+			analysis(receiveData);
+        });
+    }
+
+	void analysis(string data)
+	{
+		if (data == "")
+			return;
+		if (data.Contains("X") && data.Contains("Y"))
+		{
+			int interval;
+			int xStart, yStart;
+			xStart = data.IndexOf("X") + 1; //X123
+			yStart = data.IndexOf("Y") + 1; //Y456
+			interval = data.IndexOf(",") - xStart;   //X123,Y456
+			controler.x = int.Parse(data.Substring(xStart, interval));
+			controler.y = int.Parse(data.Substring(yStart));
+			//controler = -controler;	//與Micro Bit的轉向相反
+		}
+		if (data.Contains("A"))
+		{
+			buttonA = true;
+		}
+		else
+			buttonA = false;
+
+		if (data.Contains("B"))
+		{
+			buttonB = true;
+		}
+		else
+			buttonB = false;
+	}
+
+	public IEnumerator BLEconnect()
+	{
+		yield return new WaitForSeconds(5f);
+		while (!ble.bleActive)
+		{
+			ble.connect(mac);
+			yield return new WaitForSeconds(1f);
+		}
+		ble.subscribe();
+	}
+
+    public void connectBtn(Text mac)
+    {
+        if(BTsocket.getBTsocket(bleName) == null)
+            return;
+        ble.connect(mac.text);
+    }
+
+    public void subscribeBtn()
+    {
+        //read notify data
+        ble.subscribe();
+    }
+
+    public void sendBtn(Text sendStr)
+    {
+        ble.writeCharacteristic(sendStr.text + "#");
+    }
+
+    public void disConnectBtn()
+    {
+        ble.disConnect();
+        SceneManager.LoadSceneAsync(0); //reload
+    }
+
+    
+}
