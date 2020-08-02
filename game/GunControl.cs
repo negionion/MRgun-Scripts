@@ -150,7 +150,7 @@ public class GunControl : MonoBehaviour
 	public class MotionData
 	{
 		public int x, y;		//-1024~1024, -1024~1024
-		public char gunSt;      //(0:null, A:板機, P:霰彈/步槍, R:換彈, U:上把武器, D:下把武器)
+		public char gunSt;      //(0:null, @:板機, P:霰彈, S:步槍, A:自動步槍, R:換彈)
 		public float angle;		//0~360
 
 		public MotionData(int _x, int _y, float _a, char _gunSt)

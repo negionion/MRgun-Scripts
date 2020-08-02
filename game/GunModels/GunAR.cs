@@ -9,6 +9,8 @@ public class GunAR : GunModel
 	public Animator sightAnime;
 	public readonly string animeCtrlName = "fireAR";
 
+	public UnityEngine.UI.Text colliderLog;
+
 	protected override void chStart()
 	{
 
@@ -48,6 +50,10 @@ public class GunAR : GunModel
 
 	private IEnumerator fireAction()
 	{
+		// 更新AR環境碰撞體，等待3幀
+		SingleObj<DepthMeshColliderCus>.instance.ScanDepthCollider();
+		yield return new WaitForSeconds(0.1f);
+
 		float timing = 0;
 		Vector2 raycastPose = new Vector2(GunControl.gunRay.position.x + (Screen.width / 2), GunControl.gunRay.position.y + (Screen.height / 2));
 		GameObject hitEnemy = null;
@@ -64,12 +70,13 @@ public class GunAR : GunModel
 			{				
 				spark.transform.position = hit.point;
 				spark.transform.LookAt(hit.point - hit.normal);
-				spark.transform.Translate(Vector3.back * 0.01f);
+				spark.transform.Translate(spark.transform.forward * -0.01f);
 				spark.Play();
 				hitEnemy = hit.collider.gameObject;
+				colliderLog.text = hit.point.ToString();
 			});
-
-			if(hitEnemy == null)
+			
+			/*if(hitEnemy == null)	//舊版作法，使用AR平面感測
 			{
 				arCoreFire(raycastPose, (hit) =>
 				{
@@ -77,14 +84,16 @@ public class GunAR : GunModel
 					spark.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.Pose.position);
 					spark.Play();
 				});
-			}
+			}*/
 
 			if (timing >= fireDelay)
 			{
 				timing = 0;
 				bullet--;
+				//刷新AR的虛擬環境碰撞體(深度感測)
+				SingleObj<DepthMeshColliderCus>.instance.ScanDepthCollider();
 				//對怪物造成傷害
-				hitEnemy?.GetComponent<EnemyRecvDamage>().recvDamage(damage);
+				hitEnemy?.GetComponent<EnemyRecvDamage>()?.recvDamage(damage);
 			}
 			hitEnemy = null;
 			timing += Time.deltaTime;
