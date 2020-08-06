@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class GunAR : GunModel
-{
-	public Transform muzzleFlash;
-	public ParticleSystem spark;
+{	
+	public ParticleSystem muzzleFire;
+	public ParticleSystem impact;
+	public Transform impactPos;
 	public Animator sightAnime;
 	public readonly string animeCtrlName = "fireAR";
 
@@ -30,9 +31,10 @@ public class GunAR : GunModel
 		else
 		{
 			StopCoroutine("fireAction");
-			spark.Stop();
+			
 			sightAnime.SetBool(animeCtrlName, false);
-			muzzleFlash.gameObject.SetActive(false);			
+			muzzleFire.gameObject.SetActive(false);
+			impact.gameObject.SetActive(false);			
 		}
 		Debug.Log("Fire = " + isFire.ToString());
 	}
@@ -57,24 +59,29 @@ public class GunAR : GunModel
 		float timing = 0;
 		Vector2 raycastPose = new Vector2(GunControl.gunRay.position.x + (Screen.width / 2), GunControl.gunRay.position.y + (Screen.height / 2));
 		GameObject hitEnemy = null;
-		muzzleFlash.gameObject.SetActive(true);
+		muzzleFire.gameObject.SetActive(true);
+		muzzleFire.Play();
+		impact.gameObject.SetActive(true);
 		sightAnime.SetBool(animeCtrlName, true);
 		Ray ray = FirstPersonCamera.ScreenPointToRay(new Vector3(raycastPose.x, raycastPose.y, 0));
 		while (bullet > 0)
 		{
 			raycastPose = new Vector2(GunControl.gunRay.position.x + (Screen.width / 2), GunControl.gunRay.position.y + (Screen.height / 2));
 			ray = FirstPersonCamera.ScreenPointToRay(new Vector3(raycastPose.x, raycastPose.y, 0));
-			muzzleFlash.Rotate(0, 0, 20);
-			spark.Stop();
-			gameSceneFire(ray, shotDistance, (hit) =>
+			gameSceneFire(ray, shotDistance, 
+			(hit) =>
 			{				
-				spark.transform.position = hit.point;
-				spark.transform.LookAt(hit.point - hit.normal);
-				spark.transform.Translate(spark.transform.forward * -0.01f);
-				spark.Play();
+				impactPos.position = hit.point;
+				impactPos.LookAt(hit.point - hit.normal);
+				impactPos.transform.Translate(Vector3.back * 0.01f);
+				if(!impact.isPlaying)
+				{
+					impact.Play();
+				}
 				hitEnemy = hit.collider.gameObject;
 				colliderLog.text = hit.point.ToString();
-			});
+			}, 
+			() => {impact.Stop(); });
 			
 			/*if(hitEnemy == null)	//舊版作法，使用AR平面感測
 			{
@@ -99,8 +106,10 @@ public class GunAR : GunModel
 			timing += Time.deltaTime;
 			yield return 0;
 		}
-		spark.Stop();
+		muzzleFire.Stop();
+		impact.Stop();
 		sightAnime.SetBool(animeCtrlName, false);
-		muzzleFlash.gameObject.SetActive(false);
+		muzzleFire.gameObject.SetActive(false);
+		impact.gameObject.SetActive(false);
 	}
 }
