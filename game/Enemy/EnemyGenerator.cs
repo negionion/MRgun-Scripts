@@ -15,6 +15,7 @@ public class EnemyGenerator : MonoBehaviour
 
     public GameObject[] enemyPrefab;
     public Text debugText;
+    public Text scanText;
     // Start is called before the first frame update
     void Start()
     {
@@ -47,8 +48,9 @@ public class EnemyGenerator : MonoBehaviour
             if(Physics.Raycast(ray, out hit, 100))  //距離3~20之間可以產生怪物
             {
                 float hitDistance = Vector3.Distance(FirstPersonCamera.transform.position, hit.point);
-                debugText.text += "\n" + hitDistance.ToString();
-                if(hitDistance >= 4 && hitDistance <= 20)
+                debugText.text = "距離 " + hitDistance.ToString();
+                debugText.text += "\n點 " + hit.point;
+                if(hitDistance >= 2 && hitDistance <= 20)
                 {
                     Vector3 pos = scanAround(hit.point);
                     if(pos != Vector3.zero)
@@ -67,7 +69,7 @@ public class EnemyGenerator : MonoBehaviour
     private Vector3 scanAround(Vector3 center)
     {
         Vector3 ans = Vector3.zero, tmp = center;
-        float scanScale = 2f;
+        float scanScale = 1f;
         RaycastHit hit;
         Collider[] scanOverlap = new Collider[3];
         Vector3[] scanPosDelta = new Vector3[5];
@@ -76,25 +78,29 @@ public class EnemyGenerator : MonoBehaviour
         scanPosDelta[2].Set( scanScale,  0, -scanScale);
         scanPosDelta[3].Set(-scanScale,  0,  scanScale);
         scanPosDelta[4].Set(-scanScale,  0, -scanScale);
+        //---------------------------
+        scanText.text = "collide " + FirstPersonCamera.transform.position + "\n";
+
+        //---------------------------
         foreach(Vector3 delta in scanPosDelta)
         {
             tmp = center + delta;
-            //Debug.DrawRay(tmp, FirstPersonCamera.transform.position - tmp, Color.red, 5f);
+            scanText.text += tmp + " : ";
             if(Physics.Raycast(tmp, FirstPersonCamera.transform.position - tmp, out hit, 100))
             {
-                Debug.Log(hit.transform.tag);
+                scanText.text += hit.transform.tag + "\n";  //test
                 if(hit.transform.tag == "Player")
-                {
-                    debugText.text += "\n位置 " + tmp;
-                    //Debug.Log("sphere : " + Physics.OverlapSphereNonAlloc(tmp, 1, scanOverlap));
-                    if(Physics.OverlapSphereNonAlloc(tmp, 1, scanOverlap) <= 1)
+                {                    
+                    scanText.text += Physics.OverlapSphereNonAlloc(tmp, 0.3f, scanOverlap) + "\n";  //test
+                    if(Physics.OverlapSphereNonAlloc(tmp, 0.3f, scanOverlap) <= 1)
                     {
                         ans = tmp;
+                        debugText.text += "\n位置 " + tmp;
                         break;
                     }
                 }
             }
-            
+            scanText.text += "\n";
         }
 
         return ans;
