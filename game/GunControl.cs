@@ -9,7 +9,8 @@ public class GunControl : MonoBehaviour
 	public static MotionData mtData;
 	private BTsocket ble;
 	public GameObject gun;
-	public Vector3 gunRotate;
+	private Vector3 gunRotateOld = Vector3.zero;
+	public float rotateDeviation = 0.1f;
 	public static Pose gunRay;
 	public GameObject sight;
 	public GameObject gunSetPos;
@@ -89,12 +90,19 @@ public class GunControl : MonoBehaviour
 		float xRange = 45f;				//x軸向可動範圍
 		//加速度x軸參數正規化，並提高1.5倍靈敏度，調整區間限制於±xRange中
 		float rotateX = Mathf.Clamp(-(mtData.x / 1024f) * xRange * 1.5f, -xRange, xRange);
+		/*if((rotateX - gunRotateOld.x) / gunRotateOld.x < rotateDeviation)	//誤差過小則保持前次狀態(防止靜止時晃動)
+			rotateX = gunRotateOld.x;*/
 		//計算遊戲中武器的左右轉動角度，正規化於±30之間，提高range倍靈敏度，限制於±30度
-		gunRotate.Set(rotateX, Mathf.Clamp((mtData.angle / 180f) * 30f * range, -30f, 30f), 0);
+		float rotateY = Mathf.Clamp((mtData.angle / 180f) * 30f * range, -30f, 30f);		
+		/*if((rotateY - gunRotateOld.y) / gunRotateOld.y < rotateDeviation / 2f)	//誤差過小則保持前次狀態(防止靜止時晃動)
+			rotateY = gunRotateOld.y;*/
+		//將算完的結果存起來，用作判斷下次誤差
+		//gunRotateOld.Set(rotateX, rotateY, 0);
+
 		//使武器轉動滑順
 		gun.transform.localEulerAngles = new Vector3(
-			Mathf.LerpAngle(gun.transform.localEulerAngles.x, gunRotate.x, Time.deltaTime * lerpSpeed),
-			Mathf.LerpAngle(gun.transform.localEulerAngles.y, gunRotate.y, Time.deltaTime * lerpSpeed),
+			Mathf.LerpAngle(gun.transform.localEulerAngles.x, rotateX, Time.deltaTime * lerpSpeed),
+			Mathf.LerpAngle(gun.transform.localEulerAngles.y, rotateY, Time.deltaTime * lerpSpeed),
 			0);
 		//準星位置對應，準星可動範圍定為800*400(Canva為1920*1080)
 		gunRay.position = new Vector3(
@@ -114,14 +122,21 @@ public class GunControl : MonoBehaviour
 	public void gunMotionCtrl(MotionData mtData)
 	{
 		float xRange = 45f;             //x軸向可動範圍
-										//加速度x軸參數正規化，並提高1.5倍靈敏度，調整區間限制於±xRange中
+		//加速度x軸參數正規化，並提高1.5倍靈敏度，調整區間限制於±xRange中
 		float rotateX = Mathf.Clamp(-(mtData.x / 1024f) * xRange * 1.5f, -xRange, xRange);
+		/*if((rotateX - gunRotateOld.x) / gunRotateOld.x < rotateDeviation)	//誤差過小則不做動(防止靜止時晃動)
+			rotateX = gunRotateOld.x;*/
 		//計算遊戲中武器的左右轉動角度，正規化於±30之間，提高range倍靈敏度，限制於±30度
-		gunRotate.Set(rotateX, Mathf.Clamp((mtData.angle / 180f) * 30f * range, -30f, 30f), 0);
+		float rotateY = Mathf.Clamp((mtData.angle / 180f) * 30f * range, -30f, 30f);		
+		/*if((rotateY - gunRotateOld.y) / gunRotateOld.y < rotateDeviation / 2f)	//誤差過小則不做動(防止靜止時晃動)
+			rotateY = gunRotateOld.y;*/
+		//將算完的結果存起來，用做判斷下次誤差
+		//gunRotateOld.Set(rotateX, rotateY, 0);
+		
 		//使武器轉動滑順
 		gun.transform.localEulerAngles = new Vector3(
-			Mathf.LerpAngle(gun.transform.localEulerAngles.x, gunRotate.x, Time.deltaTime * lerpSpeed),
-			Mathf.LerpAngle(gun.transform.localEulerAngles.y, gunRotate.y, Time.deltaTime * lerpSpeed),
+			Mathf.LerpAngle(gun.transform.localEulerAngles.x, rotateX, Time.deltaTime * lerpSpeed),
+			Mathf.LerpAngle(gun.transform.localEulerAngles.y, rotateY, Time.deltaTime * lerpSpeed),
 			0);
 		//準星位置對應，準星可動範圍定為800*400(Canva為1920*1080)
 		gunRay.position = new Vector3(

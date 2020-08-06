@@ -52,10 +52,6 @@ public class ARCoreCtrl : MonoBehaviour
 	/// </summary>
 	/// 
 
-	public Text log;
-	public GameObject spark;
-	public GameObject enemy;
-
 	public void Awake()
 	{
 		// Enable ARCore to target 60fps camera capture frame rate on supported devices.
@@ -75,7 +71,9 @@ public class ARCoreCtrl : MonoBehaviour
 		
 	}
 
-	private void detectedCorner()
+	/// 舊版生成怪物及場景碰撞，已棄用，射擊碰撞改到各種gun的腳本中，怪物生成改到EnemyGanerator
+	/// ----------------------已棄用----------------------
+	/*private void detectedCorner()
 	{
 		TrackableHit hitL, hitR;
 		int ans = 0;    //-1 = L, 1 = R
@@ -155,13 +153,11 @@ public class ARCoreCtrl : MonoBehaviour
 
 				// Make game object a child of the anchor.
 				gameObject.transform.parent = anchor.transform;
-
-
-
 			}
 		}
 
-	}
+	}*/
+	/// ----------------------已棄用-----------------------
 
 	/// <summary>
 	/// Check and update the application lifecycle.

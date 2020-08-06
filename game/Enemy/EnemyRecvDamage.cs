@@ -4,7 +4,10 @@ using UnityEngine;
 
 public class EnemyRecvDamage : MonoBehaviour
 {
-	Enemy enemy;
+	private Enemy enemy;
+	public float hitDelay = 1f;
+	private float hitTiming = 0;
+	private bool effectFlag = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -21,15 +24,33 @@ public class EnemyRecvDamage : MonoBehaviour
 	public void recvDamage(float damage)
 	{
 		enemy.hp -= (int)damage;
+		hitTiming = 0;
+		StartCoroutine(hurtEffect());
 		if(enemy.hp == 0)
 		{
 			die();
 		}
 	}
 
+	private IEnumerator hurtEffect()
+	{
+		if(effectFlag)
+			yield break;
+		effectFlag = true;
+		while(hitTiming <= hitDelay)
+		{
+			gameObject.GetComponent<MeshRenderer>().material.color = Color.red;
+			hitTiming += Time.deltaTime;
+			yield return 0;
+		}
+		gameObject.GetComponent<MeshRenderer>().material.color = Color.green;
+		effectFlag = false;
+	}
+
 	private void die()
 	{
 		Debug.Log("GG");
+		gameObject.GetComponent<MeshRenderer>().material.color = Color.black;
 		gameObject.SetActive(false);
 	}
 }
