@@ -26,7 +26,7 @@ public class EnemyRecvDamage : MonoBehaviour
 		enemy.hp -= (int)damage;
 		hitTiming = 0;
 		StartCoroutine(hurtEffect());
-		if(enemy.hp == 0)
+		if(enemy.hp <= 0)
 		{
 			die();
 		}

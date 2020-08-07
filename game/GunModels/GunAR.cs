@@ -108,8 +108,9 @@ public class GunAR : GunModel
 		}
 		muzzleFire.Stop();
 		impact.Stop();
-		sightAnime.SetBool(animeCtrlName, false);
 		muzzleFire.gameObject.SetActive(false);
 		impact.gameObject.SetActive(false);
+		sightAnime.SetBool(animeCtrlName, false);
+
 	}
 }

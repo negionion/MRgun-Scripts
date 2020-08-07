@@ -47,6 +47,15 @@ public class ProjectileCus : MonoBehaviour
         }
     }
 
+    /*private void OnCollisionEnter(Collision collision)
+    {
+        if(collision.gameObject.tag.Equals("ARCoreCollider"))
+        {
+            m_Rigidbody.velocity = Vector3.zero;
+            m_Rigidbody.angularVelocity = Vector3.zero;
+        }
+    }*/
+
     private void CreateAnchor()
     {
         Vector3 screenPoint = Camera.main.WorldToScreenPoint(transform.position);

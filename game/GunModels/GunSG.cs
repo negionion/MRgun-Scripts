@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class GunSG : GunModel
 {
-	public Transform muzzleFlash;
-	public ParticleSystem spark;
+	public ParticleSystem muzzleFire;
+	public ParticleSystem impact;
+	public Transform impactPos;
 	public Animator sightAnime;
 	public readonly string animeCtrlName = "fireSG";
 	private bool loaded = false;
@@ -33,45 +34,56 @@ public class GunSG : GunModel
 
 	private IEnumerator fireAction()
 	{
+		// 更新AR環境碰撞體，等待3幀
+		SingleObj<DepthMeshColliderCus>.instance.ScanDepthCollider();
+		yield return new WaitForSeconds(0.1f);
+
 		Vector2 raycastPose = new Vector2(GunControl.gunRay.position.x + (Screen.width / 2), GunControl.gunRay.position.y + (Screen.height / 2));
 		GameObject hitEnemy = null;
+		muzzleFire.gameObject.SetActive(true);
+		muzzleFire.Play();
+		impact.gameObject.SetActive(true);
 		Ray ray = FirstPersonCamera.ScreenPointToRay(new Vector3(raycastPose.x, raycastPose.y, 0));
 		gameSceneFire(ray, shotDistance, (hit) =>
 		{
-			spark.transform.position = hit.point;
-			spark.transform.LookAt(hit.point - hit.normal);
-			spark.transform.Translate(Vector3.back * 0.01f);
-			spark.Play();
+			impactPos.position = hit.point;
+			impactPos.LookAt(hit.point - hit.normal);
+			impactPos.transform.Translate(Vector3.back * 0.01f);
+			if(!impact.isPlaying)
+			{
+				impact.Play();
+			}
 			hitEnemy = hit.collider.gameObject;
-		});
+		}, () => {impact.Stop(); });
 
-		if (hitEnemy == null)
+		/*if (hitEnemy == null)
 		{
 			arCoreFire(raycastPose, (hit) =>
 			{
-				spark.transform.position = hit.Pose.position;
-				spark.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.Pose.position);
-				spark.Play();
+				impact.transform.position = hit.Pose.position;
+				impact.transform.rotation = Quaternion.FromToRotation(Vector3.up, hit.Pose.position);
+				impact.Play();
 			});
-		}
+		}*/
 		if (loaded)
 		{
-			hitEnemy?.GetComponent<EnemyRecvDamage>().recvDamage(damage * 1.5f);
+			hitEnemy?.GetComponent<EnemyRecvDamage>()?.recvDamage(damage * 1.5f);
 		}
 		else
 		{
-			hitEnemy?.GetComponent<EnemyRecvDamage>().recvDamage(damage);
+			hitEnemy?.GetComponent<EnemyRecvDamage>()?.recvDamage(damage);
 		}
+
 		loaded = false;
 
 		sightAnime.SetBool(animeCtrlName, true);
-		muzzleFlash.gameObject.SetActive(true);
 
 		yield return new WaitForSeconds(0.3f);
 
-		spark.Stop();
+		muzzleFire.gameObject.SetActive(false);
+		impact.gameObject.SetActive(false);
 		sightAnime.SetBool(animeCtrlName, false);
-		muzzleFlash.gameObject.SetActive(false);
+		
 	}
 
 	public override void reload()
