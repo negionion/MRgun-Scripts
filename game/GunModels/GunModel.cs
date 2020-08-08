@@ -5,6 +5,14 @@ using UnityEngine.UI;
 using System;
 using GoogleARCore;
 
+public enum GunType
+{
+	AR = 0,
+	RF,
+	SG,
+	EMPTY
+}
+
 public abstract class GunModel : MonoBehaviour
 {
 	//子彈數量、傷害、射程

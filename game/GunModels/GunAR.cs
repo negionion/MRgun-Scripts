@@ -100,7 +100,7 @@ public class GunAR : GunModel
 				//刷新AR的虛擬環境碰撞體(深度感測)
 				SingleObj<DepthMeshColliderCus>.instance.ScanDepthCollider();
 				//對怪物造成傷害
-				hitEnemy?.GetComponent<EnemyRecvDamage>()?.recvDamage(damage);
+				hitEnemy?.GetComponent<Enemy>()?.recvDamage(damage);
 			}
 			hitEnemy = null;
 			timing += Time.deltaTime;

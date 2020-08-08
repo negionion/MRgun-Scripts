@@ -5,23 +5,36 @@ using UnityEngine.UI;
 
 public class GunUI : MonoBehaviour
 {
-	private GunModel gun;
+    private GunModel gun;
+    private GunType mainGunType;
 
-	public Text bullet;
+    public Text bullet;
+    //[SerializeField]
+    //private GamePlayer player;
+    //public Image hpBar;
+
+    public Sprite[] gunSprites;
+    public Image gunModelImage;
 
     // Start is called before the first frame update
     void Start()
     {
-		
+        SingleObj<GunAction>.instance.evtSelect += OnSelect;
     }
 
     // Update is called once per frame
     void Update()
     {
 
-		gun = SingleObj<GunManager>.instance.gunMain;
+        gun = SingleObj<GunManager>.instance.gunMain;
 
-		bullet.text = string.Format("{2}\n{0}/{1}", gun.bullet, gun.bulletMax, gun.ToString().Substring(3, 2));
+        bullet.text = string.Format("{0}/{1}", gun.bullet, gun.bulletMax);
 
     }
+
+    private void OnSelect(object sender, GunType gunType)
+	{
+		mainGunType = gunType;
+        gunModelImage.sprite = gunSprites[(int)mainGunType];
+	}
 }

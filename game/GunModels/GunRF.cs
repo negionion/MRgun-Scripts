@@ -82,11 +82,11 @@ public class GunRF : GunModel
 
 		if (loaded)
 		{
-			hitEnemy?.GetComponent<EnemyRecvDamage>()?.recvDamage(damage * 1.5f);
+			hitEnemy?.GetComponent<Enemy>()?.recvDamage(damage * 1.5f);
 		}
 		else
 		{
-			hitEnemy?.GetComponent<EnemyRecvDamage>()?.recvDamage(damage);
+			hitEnemy?.GetComponent<Enemy>()?.recvDamage(damage);
 		}	
 
 		loaded = false;

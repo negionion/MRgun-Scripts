@@ -3,13 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
-public enum GunType
-{
-	AR,
-	RF,
-	SG,
-	EMPTY
-}
+
 
 public class GunAction : MonoBehaviour
 {
