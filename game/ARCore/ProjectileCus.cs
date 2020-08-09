@@ -29,22 +29,34 @@ using UnityEngine;
 public class ProjectileCus : MonoBehaviour
 {
     private Rigidbody m_Rigidbody;
+    public bool isSetted {private set; get;}
 
     // Start is called before the first frame update
     private void Start()
     {
         m_Rigidbody = GetComponent<Rigidbody>();
+        m_Rigidbody.velocity.Set(0, -0.1f, 0);
+        Invoke("noGroundedDestroy", 5f);    //5秒內要著陸，不然要回收，代表沒碰到地面
+        isSetted = false;
     }
 
     // Update is called once per frame
     private void Update()
     {
-        if (m_Rigidbody.IsSleeping() && !m_Rigidbody.isKinematic)
+        if (m_Rigidbody.velocity.y >= -0.05 && !m_Rigidbody.isKinematic)
         {
             m_Rigidbody.isKinematic = true;
             m_Rigidbody.useGravity = false;
+            GetComponent<Collider>().isTrigger = true;
+            CancelInvoke("noGroundedDestroy");
             CreateAnchor();
+            isSetted = true;
         }
+    }
+
+    private void noGroundedDestroy()
+    {
+        Destroy(gameObject);
     }
 
     /*private void OnCollisionEnter(Collision collision)

@@ -20,6 +20,8 @@ public abstract class GunModel : MonoBehaviour
 	//arCore使用
 	protected Camera FirstPersonCamera;
 
+	public AudioSource fireAudio;
+
 	//子物件多型func
 	public abstract void fire(bool isFire);	
 	public abstract void select();

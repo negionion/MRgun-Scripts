@@ -56,6 +56,7 @@ public class GunRF : GunModel
 		muzzleFire.gameObject.SetActive(true);
 		muzzleFire.Play();
 		impact.gameObject.SetActive(true);
+		fireAudio.Play();
 		Ray ray = FirstPersonCamera.ScreenPointToRay(new Vector3(raycastPose.x, raycastPose.y, 0));
 		gameSceneFire(ray, shotDistance, (hit) =>
 		{
@@ -94,7 +95,8 @@ public class GunRF : GunModel
 		sightAnime.SetBool(animeCtrlName, true);
 
 		yield return new WaitForSeconds(0.3f);
-
+		
+		//fireAudio.Stop();
 		muzzleFire.gameObject.SetActive(false);
 		impact.gameObject.SetActive(false);
 		sightAnime.SetBool(animeCtrlName, false);

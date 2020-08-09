@@ -31,7 +31,7 @@ public class GunAR : GunModel
 		else
 		{
 			StopCoroutine("fireAction");
-			
+			fireAudio.Stop();
 			sightAnime.SetBool(animeCtrlName, false);
 			muzzleFire.gameObject.SetActive(false);
 			impact.gameObject.SetActive(false);			
@@ -62,6 +62,7 @@ public class GunAR : GunModel
 		muzzleFire.gameObject.SetActive(true);
 		muzzleFire.Play();
 		impact.gameObject.SetActive(true);
+		fireAudio.Play();
 		sightAnime.SetBool(animeCtrlName, true);
 		Ray ray = FirstPersonCamera.ScreenPointToRay(new Vector3(raycastPose.x, raycastPose.y, 0));
 		while (bullet > 0)
@@ -106,6 +107,7 @@ public class GunAR : GunModel
 			timing += Time.deltaTime;
 			yield return 0;
 		}
+		fireAudio.Stop();
 		muzzleFire.Stop();
 		impact.Stop();
 		muzzleFire.gameObject.SetActive(false);

@@ -73,12 +73,15 @@ public class EnemyGenerator : MonoBehaviour
         Vector3 ans = Vector3.zero, tmp = center;
         RaycastHit hit;
         Collider[] scanOverlap = new Collider[3];
-        Vector3[] scanPosDelta = new Vector3[5];
-        scanPosDelta[0].Set(0, scanScale, 0);
-        scanPosDelta[1].Set( scanScale,  0,  scanScale);
-        scanPosDelta[2].Set( scanScale,  0, -scanScale);
-        scanPosDelta[3].Set(-scanScale,  0,  scanScale);
-        scanPosDelta[4].Set(-scanScale,  0, -scanScale);
+        Vector3[] scanPosDelta = new Vector3[8];
+        scanPosDelta[0].Set(0, 0, scanScale);
+        scanPosDelta[1].Set(0, 0, -scanScale);
+        scanPosDelta[2].Set(scanScale, 0, 0);
+        scanPosDelta[3].Set(-scanScale, 0, 0);
+        scanPosDelta[4].Set( scanScale,  0,  scanScale);
+        scanPosDelta[5].Set( scanScale,  0, -scanScale);
+        scanPosDelta[6].Set(-scanScale,  0,  scanScale);
+        scanPosDelta[7].Set(-scanScale,  0, -scanScale);
         //---------------------------
         //scanText.text = "collide " + FirstPersonCamera.transform.position + "\n";
 
@@ -90,18 +93,26 @@ public class EnemyGenerator : MonoBehaviour
             if(Physics.Raycast(tmp, FirstPersonCamera.transform.position - tmp, out hit, 100))
             {
                 //scanText.text += hit.transform.tag + "\n";  //test
-                if(hit.transform.tag == "Player")
+                if(hit.transform.tag == Constants.tagPlayer)
                 {                    
                     //scanText.text += Physics.OverlapSphereNonAlloc(tmp, 0.35f, scanOverlap) + "\n";  //test
                     //檢測座標周圍是否直接卡到碰撞體內
                     if(Physics.OverlapSphereNonAlloc(tmp, scanScale * 0.35f, scanOverlap) == 0)
                     {
                         //檢測座標正下方有無地板，有地板才生成
-                        if(Physics.OverlapBoxNonAlloc(tmp - new Vector3(0, scanScale, 0), new Vector3(scanScale * 0.35f, scanScale, scanScale * 0.35f), scanOverlap) > 0)
+                        if(Physics.OverlapBoxNonAlloc(tmp - new Vector3(0, scanScale, 0), new Vector3(scanScale * 0.3f, scanScale, scanScale * 0.3f), scanOverlap) > 0)
                         {
-                            ans = tmp;
-                            //debugText.text += "\n位置 " + tmp;
-                            break;
+                            foreach(Collider _collider in scanOverlap)   //檢查地板是否為ARcollider，而非其他敵人或玩家
+                            {
+                                if(!_collider)
+                                    continue;
+                                if(_collider.tag == Constants.tagARCollider)
+                                {
+                                    ans = tmp;                                    
+                                    //debugText.text += "\n位置 " + tmp;
+                                    return ans; //直接中斷
+                                }
+                            }
                         }
                     }
                 }

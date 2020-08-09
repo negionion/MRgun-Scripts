@@ -3,24 +3,24 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.XR;
 public class Home : MonoBehaviour
 {
-    public Button fly;
+    public Button gameBtn;
+    public Button gameModeBtn;
     // Start is called before the first frame update
     void Start()
     {
+        if (XRSettings.loadedDeviceName != XRSettings.supportedDevices[1])
+			XRSettings.LoadDeviceByName(XRSettings.supportedDevices[1]);
+		if (XRSettings.loadedDeviceName == XRSettings.supportedDevices[1])
+			XRSettings.enabled = false;
         Screen.fullScreen = false;
         Screen.autorotateToPortrait = true;
         Screen.orientation = ScreenOrientation.Portrait;
-
-        if(!BTsocket.isConnectedBLE(Constants.bleMicroBit))
-        {
-            fly.interactable = false;
-        }
-        else
-        {
-            fly.interactable = true;
-        }  
+		
+        gameBtn.interactable = BTsocket.isConnectedBLE(Constants.bleMicroBit);
+ 
     }
 
     // Update is called once per frame
@@ -30,7 +30,13 @@ public class Home : MonoBehaviour
 		{
 			Application.Quit();
 		}
+        
+        gameModeBtn.GetComponentInChildren<Text>().text = GameUI.XRisEnabled ? "VR" : "Screen";
+    }
 
+    public void XRswitch()
+    {
+        GameUI.XRisEnabled = !GameUI.XRisEnabled;       
     }
 
     public void loadScene(string sceneName)

@@ -15,10 +15,12 @@ public enum EnemyState
 public class Enemy : MonoBehaviour
 {
     public EnemyState state {private set; get;}
+    [SerializeField]
+    public float delayActiveTime = 2f;
 	public int hpMax = 100;
 	public int hp = 100;
     [SerializeField]
-    private Image hpBar;
+    private Image hpBar = null;
     public UnityEvent onInitial;
     public UnityEvent onHurt;
     public UnityEvent onDie;
@@ -30,7 +32,7 @@ public class Enemy : MonoBehaviour
 	// Start is called before the first frame update
 	void Start()
     {
-        gameObject.tag = "Enemy";
+        gameObject.tag = Constants.tagEnemy;
         onInitial.Invoke();
         InvokeRepeating("attackAction", 5f, 3f);
         Invoke("onDie", 30f);
@@ -42,29 +44,38 @@ public class Enemy : MonoBehaviour
     {
         transform.LookAt(Camera.main.transform);
         transform.rotation = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0);
-        if(hpBar != null)
+        if(hpBar != null && state == EnemyState.STAY)
         {
-            hpBar.gameObject.GetComponentInParent<Canvas>().transform.rotation = Camera.main.transform.rotation;
-            hpBar.fillAmount = (float)hp / hpMax;
+            hpBar.gameObject.GetComponentInParent<Canvas>().transform.rotation = Quaternion.Euler(0, Camera.main.transform.rotation.eulerAngles.y, 0);
         }
+    }
+
+    public void delayActive(GameObject gobj)
+    {
+        StartCoroutine(delayActiveInvoke(gobj));        
+    }
+    private IEnumerator delayActiveInvoke(GameObject gobj)
+    {
+        yield return new WaitForSeconds(delayActiveTime);
+        gobj.SetActive(true);  
+        state = EnemyState.STAY;      
     }
 
     private void attackAction()
     {
-        
-        onAttack.Invoke();
-        state = EnemyState.STAY;
+        if(state == EnemyState.STAY && GetComponent<ProjectileCus>().isSetted)
+            onAttack.Invoke();
         
     }
 
     public void recvDamage(float damage)
 	{
-        if(state != EnemyState.DIE)
+        if(state == EnemyState.STAY)
         {            
-            hp -= (int)damage;		
+            hp -= (int)damage;
+            hpBar.fillAmount = (float)hp / hpMax;		
             onHurt.Invoke();
             hitTiming = 0;
-            state = EnemyState.STAY;
             if(hp <= 0)
             {
                 die();
