@@ -35,7 +35,7 @@ public class ProjectileCus : MonoBehaviour
     private void Start()
     {
         m_Rigidbody = GetComponent<Rigidbody>();
-        m_Rigidbody.velocity.Set(0, -0.1f, 0);
+        m_Rigidbody.velocity.Set(0, -0.2f, 0);
         Invoke("noGroundedDestroy", 5f);    //5秒內要著陸，不然要回收，代表沒碰到地面
         isSetted = false;
     }
@@ -43,7 +43,7 @@ public class ProjectileCus : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        if (m_Rigidbody.velocity.y >= -0.05 && !m_Rigidbody.isKinematic)
+        if (m_Rigidbody.velocity.y >= -0.1f && !m_Rigidbody.isKinematic)
         {
             m_Rigidbody.isKinematic = true;
             m_Rigidbody.useGravity = false;

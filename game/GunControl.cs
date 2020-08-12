@@ -22,7 +22,7 @@ public class GunControl : MonoBehaviour
 
 	//演算法參數
 	private int stAngle = -1;        //gun定位中心點(零點), camera y軸角度
-	private float range = 4f, lerpSpeed = 20f, cameraAngle, tempGunRotate;	//武器可動範圍, 滑順補正倍率, 相機定位角度, 武器前次監測角度
+	private float range = 4f, lerpSpeed = 15f, cameraAngle, tempGunRotate;	//武器可動範圍, 滑順補正倍率, 相機定位角度, 武器前次監測角度
 
 	void Awake()
 	{
@@ -60,7 +60,6 @@ public class GunControl : MonoBehaviour
 			oldState = Input.inputString.ToCharArray()[0];
 			Debug.Log(Input.inputString);
 		}
-		
 
 		//-------------------------------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -79,21 +78,40 @@ public class GunControl : MonoBehaviour
 			cameraAngle = mainCamera.transform.eulerAngles.y;   //reset
 			set_stAngle();  //reset
 		}
-	
+
+		
 
 	}
 
+	private Queue<float> rotateXAvg = new Queue<float>(), rotateYAvg = new Queue<float>();
+	private float rotateAvg(Queue<float> avgQueue, float _rotate)
+	{
+		float ans = 0;
+		avgQueue.Enqueue(_rotate);
+		if(avgQueue.Count > 5)	//平均的佇列數量
+		{
+			avgQueue.Dequeue();
+		}
+		foreach(float val in avgQueue)
+		{
+			ans += val;
+		}
+		
+		ans /= avgQueue.Count;
+		return ans;
+	}
 
 	public void gunMotionCtrl(string data)
 	{
 		mtData = getMotionData(data);	//將動作資料反序列化為MotionData物件
-		float xRange = 45f;				//x軸向可動範圍
+		float xRange = 40f;				//x軸向可動範圍
+		float yRange = 35f;				//y軸向可動範圍
 		//加速度x軸參數正規化，並提高1.5倍靈敏度，調整區間限制於±xRange中
-		float rotateX = Mathf.Clamp(-(mtData.x / 1024f) * xRange * 1.5f, -xRange, xRange);
+		float rotateX = rotateAvg(rotateXAvg, Mathf.Clamp(-(mtData.x / 1024f) * xRange * 1.5f, -xRange, xRange));
 		/*if((rotateX - gunRotateOld.x) / gunRotateOld.x < rotateDeviation)	//誤差過小則保持前次狀態(防止靜止時晃動)
 			rotateX = gunRotateOld.x;*/
 		//計算遊戲中武器的左右轉動角度，正規化於±30之間，提高range倍靈敏度，限制於±30度
-		float rotateY = Mathf.Clamp((mtData.angle / 180f) * 30f * range, -30f, 30f);		
+		float rotateY = rotateAvg(rotateYAvg, Mathf.Clamp((mtData.angle / 180f) * yRange * range, -yRange, yRange));		
 		/*if((rotateY - gunRotateOld.y) / gunRotateOld.y < rotateDeviation / 2f)	//誤差過小則保持前次狀態(防止靜止時晃動)
 			rotateY = gunRotateOld.y;*/
 		//將算完的結果存起來，用作判斷下次誤差
@@ -104,7 +122,7 @@ public class GunControl : MonoBehaviour
 			Mathf.LerpAngle(gun.transform.localEulerAngles.x, rotateX, Time.deltaTime * lerpSpeed),
 			Mathf.LerpAngle(gun.transform.localEulerAngles.y, rotateY, Time.deltaTime * lerpSpeed),
 			0);
-		//準星位置對應，準星可動範圍定為800*400(Canva為1920*1080)
+		//準星位置對應，準星可動範圍定為1600*800(Canva為1920*1080)
 		gunRay.position = new Vector3(
 			Mathf.Lerp(gunRay.position.x, Mathf.Clamp((mtData.angle / 180f) * 800f * range, -800, 800), Time.deltaTime * lerpSpeed),
 			Mathf.Lerp(gunRay.position.y, -(rotateX / xRange) * 400, Time.deltaTime * lerpSpeed),
@@ -121,13 +139,14 @@ public class GunControl : MonoBehaviour
 
 	public void gunMotionCtrl(MotionData mtData)
 	{
-		float xRange = 45f;             //x軸向可動範圍
+		float xRange = 40f;             //x軸向可動範圍
+		float yRange = 35f;				//y軸向可動範圍
 		//加速度x軸參數正規化，並提高1.5倍靈敏度，調整區間限制於±xRange中
-		float rotateX = Mathf.Clamp(-(mtData.x / 1024f) * xRange * 1.5f, -xRange, xRange);
+		float rotateX = rotateAvg(rotateXAvg, Mathf.Clamp(-(mtData.x / 1024f) * xRange * 1.5f, -xRange, xRange));
 		/*if((rotateX - gunRotateOld.x) / gunRotateOld.x < rotateDeviation)	//誤差過小則不做動(防止靜止時晃動)
 			rotateX = gunRotateOld.x;*/
-		//計算遊戲中武器的左右轉動角度，正規化於±30之間，提高range倍靈敏度，限制於±30度
-		float rotateY = Mathf.Clamp((mtData.angle / 180f) * 30f * range, -30f, 30f);		
+		//計算遊戲中武器的左右轉動角度，正規化於yRange之間，提高range倍靈敏度，限制於±30度
+		float rotateY = rotateAvg(rotateYAvg, Mathf.Clamp((mtData.angle / 180f) * yRange * range, -yRange, yRange));		
 		/*if((rotateY - gunRotateOld.y) / gunRotateOld.y < rotateDeviation / 2f)	//誤差過小則不做動(防止靜止時晃動)
 			rotateY = gunRotateOld.y;*/
 		//將算完的結果存起來，用做判斷下次誤差

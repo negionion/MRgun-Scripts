@@ -24,7 +24,8 @@ public class EnemyAttack : MonoBehaviour
         fireEffect.Play();
         fireSound.Play();
         RaycastHit hit;
-        if(Physics.Raycast(transform.position, Camera.main.transform.position - transform.position, out hit, 100))
+        //Debug.DrawRay(fireEffect.transform.position, Camera.main.transform.position - fireEffect.transform.position,Color.red, 3f);
+        if(Physics.Raycast(fireEffect.transform.position, Camera.main.transform.position - fireEffect.transform.position, out hit, 100))
         {
             if(hit.transform.tag == Constants.tagPlayer)
             {

@@ -15,7 +15,9 @@ public class EnemyGenerator : MonoBehaviour
     public float distance = 2f;
     public float interval = 5f; //生成怪物間隔時間
     public float scanScale = 1f;    //Enemy size
-    public GameObject[] enemyPrefab;
+    public GameObject enemyPrefab;
+    [SerializeField]
+    private Bounds enemyBounds;
     public Text debugText;
     public Text scanText;
     // Start is called before the first frame update
@@ -23,6 +25,12 @@ public class EnemyGenerator : MonoBehaviour
     {
         FirstPersonCamera = Camera.main;
         generateEnemyFlag = true;
+        //enemyBounds = enemyCollider.bounds;
+        float maxExtents = Mathf.Max(enemyBounds.extents.x, enemyBounds.extents.z);
+        if(scanScale <= maxExtents)
+        {
+            scanScale = maxExtents * 2;
+        }
         StartCoroutine(generateHandler());
         //createEnemy(transform);
     }
@@ -64,7 +72,7 @@ public class EnemyGenerator : MonoBehaviour
                 }
 
             }  
-            yield return new WaitForSeconds(Random.Range(interval, interval * 2)); 
+            yield return new WaitForSeconds(interval); 
         }
     }
 
@@ -82,6 +90,8 @@ public class EnemyGenerator : MonoBehaviour
         scanPosDelta[5].Set( scanScale,  0, -scanScale);
         scanPosDelta[6].Set(-scanScale,  0,  scanScale);
         scanPosDelta[7].Set(-scanScale,  0, -scanScale);
+
+        Vector3 scanCenterDelta = new Vector3(0, enemyBounds.size.y / 2, 0); //掃描下方有無地板的碰撞體中心
         //---------------------------
         //scanText.text = "collide " + FirstPersonCamera.transform.position + "\n";
 
@@ -89,18 +99,20 @@ public class EnemyGenerator : MonoBehaviour
         foreach(Vector3 delta in scanPosDelta)
         {
             tmp = center + delta;
+            
             //scanText.text += tmp + " : ";
             if(Physics.Raycast(tmp, FirstPersonCamera.transform.position - tmp, out hit, 100))
             {
                 //scanText.text += hit.transform.tag + "\n";  //test
                 if(hit.transform.tag == Constants.tagPlayer)
                 {                    
-                    //scanText.text += Physics.OverlapSphereNonAlloc(tmp, 0.35f, scanOverlap) + "\n";  //test
-                    //檢測座標周圍是否直接卡到碰撞體內
-                    if(Physics.OverlapSphereNonAlloc(tmp, scanScale * 0.35f, scanOverlap) == 0)
+                    //scanText.text += Physics.OverlapSphereNonAlloc(tmp, 0.3f, scanOverlap) + "\n";  //test
+                    //檢測座標周圍是否直接卡到碰撞體內，提高掃描中心至敵人模型高度的25%位置，掃描半身範圍的圓球內有無碰撞
+                    if(Physics.OverlapSphereNonAlloc(tmp + (scanCenterDelta / 2), (enemyBounds.size.y / 4), scanOverlap) == 0)
                     {
                         //檢測座標正下方有無地板，有地板才生成
-                        if(Physics.OverlapBoxNonAlloc(tmp - new Vector3(0, scanScale, 0), new Vector3(scanScale * 0.3f, scanScale, scanScale * 0.3f), scanOverlap) > 0)
+                        //將座標的center移動到正下方(tmp - scanCenterDelta)，且不疊合生成的怪物碰撞體
+                        if(Physics.OverlapBoxNonAlloc(tmp - scanCenterDelta, enemyBounds.extents * 0.6f, scanOverlap) > 0)
                         {
                             foreach(Collider _collider in scanOverlap)   //檢查地板是否為ARcollider，而非其他敵人或玩家
                             {
@@ -109,8 +121,7 @@ public class EnemyGenerator : MonoBehaviour
                                 if(_collider.tag == Constants.tagARCollider)
                                 {
                                     ans = tmp;                                    
-                                    //debugText.text += "\n位置 " + tmp;
-                                    return ans; //直接中斷
+                                    return ans; //直接中斷送出目標位置點
                                 }
                             }
                         }
@@ -125,7 +136,12 @@ public class EnemyGenerator : MonoBehaviour
 
     private void createEnemy(Vector3 pos)
     {
-        if(FindObjectsOfType<Enemy>().Length < 10)
-            Instantiate(enemyPrefab[0], pos, Quaternion.identity);
+        if(FindObjectsOfType<Enemy>().Length <= 5)
+            Instantiate(enemyPrefab, pos, Quaternion.identity);
+        else
+        {
+            Destroy(FindObjectsOfType<Enemy>()[0]);
+            Instantiate(enemyPrefab, pos, Quaternion.identity);
+        }
     }
 }
