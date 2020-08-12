@@ -14,6 +14,7 @@ public class EnemyGenerator : MonoBehaviour
     
     public float distance = 2f;
     public float interval = 5f; //生成怪物間隔時間
+    public int enemyMaxCount = 5;
     public float scanScale = 1f;    //Enemy size
     public GameObject enemyPrefab;
     [SerializeField]
@@ -112,9 +113,14 @@ public class EnemyGenerator : MonoBehaviour
                     {
                         //檢測座標正下方有無地板，有地板才生成
                         //將座標的center移動到正下方(tmp - scanCenterDelta)，且不疊合生成的怪物碰撞體
-                        if(Physics.OverlapBoxNonAlloc(tmp - scanCenterDelta, enemyBounds.extents * 0.6f, scanOverlap) > 0)
+                        if(Physics.OverlapBoxNonAlloc(tmp - scanCenterDelta, enemyBounds.extents * 0.6f, scanOverlap) == 1)
                         {
-                            foreach(Collider _collider in scanOverlap)   //檢查地板是否為ARcollider，而非其他敵人或玩家
+                            if(scanOverlap[0].tag == Constants.tagARCollider)
+                            {
+                                ans = tmp;                                    
+                                return ans; //直接中斷送出目標位置點
+                            }
+                            /*foreach(Collider _collider in scanOverlap)   //檢查地板是否為ARcollider，而非其他敵人或玩家
                             {
                                 if(!_collider)
                                     continue;
@@ -123,12 +129,11 @@ public class EnemyGenerator : MonoBehaviour
                                     ans = tmp;                                    
                                     return ans; //直接中斷送出目標位置點
                                 }
-                            }
+                            }*/
                         }
                     }
                 }
             }
-            //scanText.text += "\n";
         }
 
         return ans;
@@ -136,11 +141,11 @@ public class EnemyGenerator : MonoBehaviour
 
     private void createEnemy(Vector3 pos)
     {
-        if(FindObjectsOfType<Enemy>().Length <= 5)
+        if(FindObjectsOfType<Enemy>().Length < enemyMaxCount)
             Instantiate(enemyPrefab, pos, Quaternion.identity);
         else
         {
-            Destroy(FindObjectsOfType<Enemy>()[0]);
+            Destroy(FindObjectsOfType<Enemy>()[enemyMaxCount - 1].gameObject);
             Instantiate(enemyPrefab, pos, Quaternion.identity);
         }
     }

@@ -35,27 +35,39 @@ public class ProjectileCus : MonoBehaviour
     private void Start()
     {
         m_Rigidbody = GetComponent<Rigidbody>();
-        m_Rigidbody.velocity.Set(0, -0.2f, 0);
-        Invoke("noGroundedDestroy", 5f);    //5秒內要著陸，不然要回收，代表沒碰到地面
+        m_Rigidbody.velocity.Set(0, -1f, 0);
+        Invoke("noGroundedDestroy", 3f);    //3秒內要著陸，不然要回收，代表沒碰到地面
         isSetted = false;
+        StartCoroutine(scanGrounded());
     }
 
     // Update is called once per frame
     private void Update()
     {
-        if (m_Rigidbody.velocity.y >= -0.1f && !m_Rigidbody.isKinematic)
+        
+    }
+    
+    private IEnumerator scanGrounded()
+    {
+        while(true)
         {
-            m_Rigidbody.isKinematic = true;
-            m_Rigidbody.useGravity = false;
-            GetComponent<Collider>().isTrigger = true;
-            CancelInvoke("noGroundedDestroy");
-            CreateAnchor();
-            isSetted = true;
+            yield return new WaitForFixedUpdate();
+            if (m_Rigidbody.velocity.y >= -0.1f && !m_Rigidbody.isKinematic)
+            {
+                m_Rigidbody.isKinematic = true;
+                m_Rigidbody.useGravity = false;
+                GetComponent<Collider>().isTrigger = true;
+                CancelInvoke("noGroundedDestroy");
+                CreateAnchor();
+                isSetted = true;
+                yield break;
+            }
         }
     }
 
     private void noGroundedDestroy()
     {
+        StopAllCoroutines();
         Destroy(gameObject);
     }
 
