@@ -8,6 +8,8 @@ public class Home : MonoBehaviour
 {
     public Button gameBtn;
     public Button gameModeBtn;
+    [SerializeField]
+    private bool debugMode = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -19,7 +21,8 @@ public class Home : MonoBehaviour
         Screen.autorotateToPortrait = true;
         Screen.orientation = ScreenOrientation.Portrait;
 		
-        gameBtn.interactable = BTsocket.isConnectedBLE(Constants.bleMicroBit);
+        if(!debugMode)
+            gameBtn.interactable = BTsocket.isConnectedBLE(Constants.bleMicroBit);
  
     }
 

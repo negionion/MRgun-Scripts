@@ -14,6 +14,7 @@ public class GameUI : MonoBehaviour
         Screen.orientation = ScreenOrientation.LandscapeLeft;
 
         UnityEngine.XR.XRSettings.enabled = XRisEnabled;
+        UnityEngine.XR.XRDevice.DisableAutoXRCameraTracking(Camera.main, true);
 
     }
 

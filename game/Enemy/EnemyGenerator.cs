@@ -112,24 +112,13 @@ public class EnemyGenerator : MonoBehaviour
                     if(Physics.OverlapSphereNonAlloc(tmp + (scanCenterDelta / 2), (enemyBounds.size.y / 4), scanOverlap) == 0)
                     {
                         //檢測座標正下方有無地板，有地板才生成
-                        //將座標的center移動到正下方(tmp - scanCenterDelta)，且不疊合生成的怪物碰撞體
-                        if(Physics.OverlapBoxNonAlloc(tmp - scanCenterDelta, enemyBounds.extents * 0.6f, scanOverlap) == 1)
+                        if(Physics.Raycast(tmp, Vector3.down, out hit, enemyBounds.extents.y))
                         {
-                            if(scanOverlap[0].tag == Constants.tagARCollider)
+                            if(hit.transform.tag == Constants.tagARCollider)
                             {
                                 ans = tmp;                                    
                                 return ans; //直接中斷送出目標位置點
                             }
-                            /*foreach(Collider _collider in scanOverlap)   //檢查地板是否為ARcollider，而非其他敵人或玩家
-                            {
-                                if(!_collider)
-                                    continue;
-                                if(_collider.tag == Constants.tagARCollider)
-                                {
-                                    ans = tmp;                                    
-                                    return ans; //直接中斷送出目標位置點
-                                }
-                            }*/
                         }
                     }
                 }
