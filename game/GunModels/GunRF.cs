@@ -43,6 +43,7 @@ public class GunRF : GunModel
 		if(bullet > 0)
 			loaded = true;
 		Debug.Log("Select RF");
+		fireOK = true;
 	}
 
 	private IEnumerator fireAction()
@@ -80,7 +81,6 @@ public class GunRF : GunModel
 			});
 		}*/
 
-
 		if (loaded)
 		{
 			hitEnemy?.GetComponent<Enemy>()?.recvDamage(damage * 1.5f);
@@ -88,7 +88,12 @@ public class GunRF : GunModel
 		else
 		{
 			hitEnemy?.GetComponent<Enemy>()?.recvDamage(damage);
-		}	
+		}
+
+		//彈孔殘留效果，延遲5秒後消失(請參考ImpactShowDelay.cs)
+		GameObject impactDelay = impactPool.getObj();
+		impactDelay.transform.position = impactPos.position;
+		impactDelay.transform.rotation = impactPos.rotation;
 
 		loaded = false;
 

@@ -45,10 +45,7 @@ public class EnemyGenerator : MonoBehaviour
     private IEnumerator generateHandler()
     {
         RaycastHit hit;
-        
-        Collider[] scanOverlap = new Collider[5];
         yield return new WaitForSeconds(5f);   //Delay
-
         while(generateEnemyFlag)
         {
             //刷新AR的虛擬環境碰撞體(深度感測)
@@ -56,11 +53,11 @@ public class EnemyGenerator : MonoBehaviour
             yield return new WaitForSeconds(0.3f);
 
             Ray ray = FirstPersonCamera.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));        
-            if(Physics.Raycast(ray, out hit, 100))  //距離3~20之間可以產生怪物
+            if(Physics.Raycast(ray, out hit, 100)) 
             {
                 float hitDistance = Vector3.Distance(FirstPersonCamera.transform.position, hit.point);
-                debugText.text = "距離 " + hitDistance.ToString();
-                debugText.text += "\n點 " + hit.point;
+                //debugText.text = "距離 " + hitDistance.ToString();
+                //debugText.text += "\n點 " + hit.point;
                 if(hitDistance >= distance && hitDistance <= distance * 10)
                 {
                     Vector3 pos = scanAround(hit.point);
@@ -71,7 +68,6 @@ public class EnemyGenerator : MonoBehaviour
                 {
 
                 }
-
             }  
             yield return new WaitForSeconds(interval); 
         }
@@ -97,6 +93,12 @@ public class EnemyGenerator : MonoBehaviour
         //scanText.text = "collide " + FirstPersonCamera.transform.position + "\n";
 
         //---------------------------
+        
+        for(int i = 0; i < scanPosDelta.Length; i++)
+        {
+            GeneralFunc.Swap<Vector3>(ref scanPosDelta[i], ref scanPosDelta[Random.Range(0, scanPosDelta.Length)]);
+        }
+
         foreach(Vector3 delta in scanPosDelta)
         {
             tmp = center + delta;

@@ -53,7 +53,6 @@ public class GunManager : MonoBehaviour
 		//initial
 		gunMain.gameObject.SetActive(true);
 		gunMain.select();
-
 	}
 	private void OnReload(object sender, EventArgs e)
 	{

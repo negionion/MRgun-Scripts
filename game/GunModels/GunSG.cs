@@ -75,6 +75,11 @@ public class GunSG : GunModel
 			hitEnemy?.GetComponent<Enemy>()?.recvDamage(damage);
 		}
 
+		//彈孔殘留效果，延遲5秒後消失(請參考ImpactShowDelay.cs)
+		GameObject impactDelay = impactPool.getObj();
+		impactDelay.transform.position = impactPos.position;
+		impactDelay.transform.rotation = impactPos.rotation;
+
 		loaded = false;
 
 		sightAnime.SetBool(animeCtrlName, true);
@@ -99,5 +104,6 @@ public class GunSG : GunModel
 		if (bullet > 0)
 			loaded = true;
 		Debug.Log("Select SG");
+		fireOK = true;
 	}
 }

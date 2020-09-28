@@ -27,10 +27,13 @@ public abstract class GunModel : MonoBehaviour
 	public abstract void select();
 	public abstract void reload();
 
-	protected bool fireOK { get; private set; }
+	protected bool fireOK { get; set; }
 
 	[SerializeField]
 	protected float fireDelay;
+
+	[SerializeField]
+	protected PoolObj impactPool;
 
 	//繼承緣故，子類別非必要不覆寫父類別的Unity基本Function，請改用ch開頭的方法，並要求子類別override
 	void Start()

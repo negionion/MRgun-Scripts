@@ -48,6 +48,7 @@ public class GunAR : GunModel
 	public override void select()
 	{
 		Debug.Log("Select AR");
+		fireOK = true;
 	}
 
 	private IEnumerator fireAction()
@@ -102,6 +103,10 @@ public class GunAR : GunModel
 				SingleObj<DepthMeshColliderCus>.instance.ScanDepthCollider();
 				//對怪物造成傷害
 				hitEnemy?.GetComponent<Enemy>()?.recvDamage(damage);
+				//彈孔殘留效果，延遲5秒後消失(請參考ImpactShowDelay.cs)
+				GameObject impactDelay = impactPool.getObj();
+				impactDelay.transform.position = impactPos.position;
+				impactDelay.transform.rotation = impactPos.rotation;
 			}
 			hitEnemy = null;
 			timing += Time.deltaTime;
