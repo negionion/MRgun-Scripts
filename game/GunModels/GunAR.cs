@@ -18,7 +18,7 @@ public class GunAR : GunModel
 	}
 	protected override void chUpdate()
 	{
-
+		
 	}
 
 	public override void fire(bool isFire)
@@ -58,7 +58,7 @@ public class GunAR : GunModel
 		yield return new WaitForSeconds(0.1f);
 
 		float timing = 0;
-		Vector2 raycastPose = new Vector2(GunControl.gunRay.position.x + (Screen.width / 2), GunControl.gunRay.position.y + (Screen.height / 2));
+		Vector2 raycastPose = getSightPosToScreen();
 		GameObject hitEnemy = null;
 		muzzleFire.gameObject.SetActive(true);
 		muzzleFire.Play();
@@ -68,7 +68,9 @@ public class GunAR : GunModel
 		Ray ray = FirstPersonCamera.ScreenPointToRay(new Vector3(raycastPose.x, raycastPose.y, 0));
 		while (bullet > 0)
 		{
-			raycastPose = new Vector2(GunControl.gunRay.position.x + (Screen.width / 2), GunControl.gunRay.position.y + (Screen.height / 2));
+			
+			raycastPose = getSightPosToScreen();
+			Debug.Log(raycastPose);
 			ray = FirstPersonCamera.ScreenPointToRay(new Vector3(raycastPose.x, raycastPose.y, 0));
 			gameSceneFire(ray, shotDistance, 
 			(hit) =>

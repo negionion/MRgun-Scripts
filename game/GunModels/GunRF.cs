@@ -52,7 +52,7 @@ public class GunRF : GunModel
 		SingleObj<DepthMeshColliderCus>.instance.ScanDepthCollider();
 		yield return new WaitForSeconds(0.1f);
 
-		Vector2 raycastPose = new Vector2(GunControl.gunRay.position.x + (Screen.width / 2), GunControl.gunRay.position.y + (Screen.height / 2));
+		Vector2 raycastPose = getSightPosToScreen();
 		GameObject hitEnemy = null;
 		muzzleFire.gameObject.SetActive(true);
 		muzzleFire.Play();

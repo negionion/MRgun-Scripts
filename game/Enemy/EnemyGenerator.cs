@@ -45,31 +45,49 @@ public class EnemyGenerator : MonoBehaviour
     private IEnumerator generateHandler()
     {
         RaycastHit hit;
-        yield return new WaitForSeconds(5f);   //Delay
+        bool generatedFlag = false;             //判斷經過interval時間後，是否已有生成敵人，否則頻率改為每秒偵測
+        yield return new WaitForSeconds(5f);    //Delay
         while(generateEnemyFlag)
         {
             //刷新AR的虛擬環境碰撞體(深度感測)
             SingleObj<DepthMeshColliderCus>.instance.ScanDepthCollider();
             yield return new WaitForSeconds(0.3f);
 
+            generatedFlag = false;
             Ray ray = FirstPersonCamera.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));        
             if(Physics.Raycast(ray, out hit, 100)) 
             {
                 float hitDistance = Vector3.Distance(FirstPersonCamera.transform.position, hit.point);
-                //debugText.text = "距離 " + hitDistance.ToString();
-                //debugText.text += "\n點 " + hit.point;
+
+                //sim
+                hitDistance = distance;
+                hit.point = FirstPersonCamera.transform.position + new Vector3(0, 0, 2); 
+                //----------------
+
+                Debug.Log("距離" + hitDistance);
                 if(hitDistance >= distance && hitDistance <= distance * 10)
                 {
                     Vector3 pos = scanAround(hit.point);
                     if(pos != Vector3.zero)
+                    {                        
                         createEnemy(pos);
+                        generatedFlag = true;
+                    }
                 }
-                else
+                else if(hitDistance < distance && hitDistance >= 0.5f)
                 {
-
+                    Vector3 pos = scanAround(hit.point + (Vector3.up * enemyBounds.size.y) + (Vector3.forward * distance));
+                    if(pos != Vector3.zero)
+                    {                        
+                        createEnemy(pos);
+                        generatedFlag = true;
+                    }
                 }
-            }  
-            yield return new WaitForSeconds(interval); 
+            } 
+            if(generatedFlag) 
+                yield return new WaitForSeconds(interval); 
+            else
+                yield return new WaitForSeconds(1f);
         }
     }
 

@@ -21,6 +21,7 @@ public abstract class GunModel : MonoBehaviour
 	protected Camera FirstPersonCamera;
 
 	public AudioSource fireAudio;
+	private Vector2 sightPos;
 
 	//子物件多型func
 	public abstract void fire(bool isFire);	
@@ -66,6 +67,12 @@ public abstract class GunModel : MonoBehaviour
 	{
 		SingleObj<GunAtkDamage>.instance.evtAtkDamage(this, (int)_damage);
 	}*/
+
+	//計算遊戲中準星UI座標轉換到相機座標的位置
+	protected Vector2 getSightPosToScreen()
+	{
+		return new Vector2(((GunControl.gunRay.position.x / Constants.uiWidth) + 0.5f) * Screen.width, ((GunControl.gunRay.position.y / Constants.uiHeight) + 0.5f) * Screen.height);
+	}
 
 	protected void gameSceneFire(Ray ray, float maxDistance, Action<RaycastHit> hitAct, Action noHitAct = null)
 	{
