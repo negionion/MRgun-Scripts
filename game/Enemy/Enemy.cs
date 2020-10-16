@@ -104,9 +104,11 @@ public class Enemy : MonoBehaviour
 	}
     private void die()
 	{
-		Debug.Log("GG");        
+		Debug.Log("GG");    
         onDie.Invoke();
+        SingleObj<ItemGenerator>.instance.itemGenerate(this.transform);
         state = EnemyState.DIE;
+        
         //gameObject.GetComponent<Collider>().enabled = false;
         Destroy(gameObject, 5f);
 		//gameObject.GetComponent<MeshRenderer>().material.color = Color.black;

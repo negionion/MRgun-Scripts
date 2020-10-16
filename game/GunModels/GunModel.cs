@@ -16,7 +16,7 @@ public enum GunType
 public abstract class GunModel : MonoBehaviour
 {
 	//子彈數量、傷害、射程
-	public int bullet, bulletMax, damage, shotDistance;
+	public int bullet, bulletMax, damage, shotDistance, bulletStandSize;
 	//arCore使用
 	protected Camera FirstPersonCamera;
 
@@ -41,6 +41,8 @@ public abstract class GunModel : MonoBehaviour
 	{
 		FirstPersonCamera = Camera.main;
 		fireOK = true;
+		bulletStandSize = bulletMax;
+		bullet = bulletMax;
 		chStart();
 	}
 	protected abstract void chStart();
@@ -87,7 +89,7 @@ public abstract class GunModel : MonoBehaviour
 		}
 	}
 
-	protected void arCoreFire(Vector2 raycastPose, Action<TrackableHit> hitAct, Action noHitAct = null)
+	/*protected void arCoreFire(Vector2 raycastPose, Action<TrackableHit> hitAct, Action noHitAct = null)
 	{		
 		TrackableHit shotHit;
 		TrackableHitFlags raycastFilter = TrackableHitFlags.PlaneWithinPolygon |
@@ -113,6 +115,6 @@ public abstract class GunModel : MonoBehaviour
 			noHitAct?.Invoke();
 		}
 
-	}
+	}*/
 
 }

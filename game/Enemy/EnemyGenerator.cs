@@ -60,11 +60,11 @@ public class EnemyGenerator : MonoBehaviour
                 float hitDistance = Vector3.Distance(FirstPersonCamera.transform.position, hit.point);
 
                 //sim
-                hitDistance = distance;
-                hit.point = FirstPersonCamera.transform.position + new Vector3(0, 0, 2); 
+                //hitDistance = distance;
+                //hit.point = FirstPersonCamera.transform.position + new Vector3(0, 0, 2); 
                 //----------------
 
-                Debug.Log("距離" + hitDistance);
+                //Debug.Log("距離" + hitDistance);
                 if(hitDistance >= distance && hitDistance <= distance * 10)
                 {
                     Vector3 pos = scanAround(hit.point);

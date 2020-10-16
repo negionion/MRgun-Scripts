@@ -8,6 +8,7 @@
     public const string layerMRcollider = "MRcollider";
     public const string tagPlayer = "Player";
     public const string tagEnemy = "Enemy";
+    public const string tagInitial = "Untagged";
 
 }
 

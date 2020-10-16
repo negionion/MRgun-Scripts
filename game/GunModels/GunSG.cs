@@ -69,10 +69,12 @@ public class GunSG : GunModel
 		if (loaded)
 		{
 			hitEnemy?.GetComponent<Enemy>()?.recvDamage(damage * 1.5f);
+			hitEnemy?.GetComponent<BoomBox>()?.recvDamage(damage * 1.5f);
 		}
 		else
 		{
 			hitEnemy?.GetComponent<Enemy>()?.recvDamage(damage);
+			hitEnemy?.GetComponent<BoomBox>()?.recvDamage(damage);
 		}
 
 		//彈孔殘留效果，延遲5秒後消失(請參考ImpactShowDelay.cs)

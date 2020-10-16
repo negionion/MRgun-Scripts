@@ -21,7 +21,7 @@ public class Player : MonoBehaviour
         
     }
 
-    public void recvDamage(float damage)
+    public void recvDamage(float damage)            //HP 控制，給負值可回血
     {
         if(hp > 0)
         {
@@ -29,5 +29,8 @@ public class Player : MonoBehaviour
             hpBar.fillAmount = (float)hp / hpMax;
             Handheld.Vibrate();	
         }
-    }
+        if(hp > hpMax)
+            hp = hpMax;
+    } 
+
 }
