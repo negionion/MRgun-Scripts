@@ -15,7 +15,6 @@ public class GameUI : MonoBehaviour
 
         UnityEngine.XR.XRSettings.enabled = XRisEnabled;
         UnityEngine.XR.XRDevice.DisableAutoXRCameraTracking(Camera.main, true);
-
     }
 
     // Update is called once per frame

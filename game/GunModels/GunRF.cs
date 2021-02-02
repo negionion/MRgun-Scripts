@@ -40,6 +40,7 @@ public class GunRF : GunModel
 
 	public override void select()
 	{
+		sightAnime.SetBool(animeCtrlName, false);
 		if(bullet > 0)
 			loaded = true;
 		Debug.Log("Select RF");
@@ -93,9 +94,12 @@ public class GunRF : GunModel
 		}
 
 		//彈孔殘留效果，延遲5秒後消失(請參考ImpactShowDelay.cs)
-		GameObject impactDelay = impactPool.getObj();
-		impactDelay.transform.position = impactPos.position;
-		impactDelay.transform.rotation = impactPos.rotation;
+		if(hitEnemy.tag == Constants.tagARCollider)
+		{
+			GameObject impactDelay = impactPool.getObj();
+			impactDelay.transform.position = impactPos.position;
+			impactDelay.transform.rotation = impactPos.rotation;
+		}
 
 		loaded = false;
 

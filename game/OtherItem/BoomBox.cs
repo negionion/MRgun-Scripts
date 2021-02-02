@@ -1,12 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class BoomBox : MonoBehaviour
 {
     public int boomDamage = 20;
     public int hp = 50;
     public float size = 1.5f;
+    public UnityEvent onBoom;
     // Start is called before the first frame update
     void Start()
     {
@@ -57,7 +59,10 @@ public class BoomBox : MonoBehaviour
         CancelInvoke();
         gameObject.GetComponent<MeshRenderer>().enabled = false;
         gameObject.GetComponent<Collider>().enabled = false;
+        gameObject.GetComponentInChildren<SpriteRenderer>().enabled = false;
+        onBoom?.Invoke();
         this.enabled = false;
+
         Destroy(gameObject, 3f);
     }
 }

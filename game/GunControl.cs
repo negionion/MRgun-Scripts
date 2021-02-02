@@ -22,7 +22,7 @@ public class GunControl : MonoBehaviour
 
 	//演算法參數
 	private int stAngle = -1;        //gun定位中心點(零點), camera y軸角度
-	private float range = 4f, lerpSpeed = 15f, cameraAngle, tempGunRotate;	//武器可動範圍, 滑順補正倍率, 相機定位角度, 武器前次監測角度
+	private float range = 4f, lerpSpeed = 6f, cameraAngle, tempGunRotate;	//武器可動範圍, 滑順補正倍率, 相機定位角度, 武器前次監測角度
 
 	void Awake()
 	{

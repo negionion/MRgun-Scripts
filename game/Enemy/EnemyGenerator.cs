@@ -46,7 +46,7 @@ public class EnemyGenerator : MonoBehaviour
     {
         RaycastHit hit;
         bool generatedFlag = false;             //判斷經過interval時間後，是否已有生成敵人，否則頻率改為每秒偵測
-        yield return new WaitForSeconds(5f);    //Delay
+        yield return new WaitForSeconds(15f);    //Delay
         while(generateEnemyFlag)
         {
             //刷新AR的虛擬環境碰撞體(深度感測)
@@ -130,12 +130,35 @@ public class EnemyGenerator : MonoBehaviour
                     //scanText.text += Physics.OverlapSphereNonAlloc(tmp, 0.3f, scanOverlap) + "\n";  //test
                     //檢測座標周圍是否直接卡到碰撞體內，提高掃描中心至敵人模型高度的25%位置，掃描半身範圍的圓球內有無碰撞
                     if(Physics.OverlapSphereNonAlloc(tmp + (scanCenterDelta / 2), (enemyBounds.size.y / 4), scanOverlap) == 0)
-                    {
+                    {                        
                         //檢測座標正下方有無地板，有地板才生成
                         if(Physics.Raycast(tmp, Vector3.down, out hit, enemyBounds.extents.y))
                         {
-                            if(hit.transform.tag == Constants.tagARCollider)
+                            RaycastHit[] hits = new RaycastHit[4];
+                            Physics.Raycast(tmp + new Vector3(enemyBounds.extents.x / 2f, 0, enemyBounds.extents.z / 2f), Vector3.down, out hits[0], enemyBounds.extents.y);
+                            Physics.Raycast(tmp + new Vector3(-enemyBounds.extents.x / 2f, 0, enemyBounds.extents.z / 2f), Vector3.down, out hits[1], enemyBounds.extents.y); 
+                            Physics.Raycast(tmp + new Vector3(enemyBounds.extents.x / 2f, 0, -enemyBounds.extents.z / 2f), Vector3.down, out hits[2], enemyBounds.extents.y); 
+                            Physics.Raycast(tmp + new Vector3(-enemyBounds.extents.x / 2f, 0, -enemyBounds.extents.z / 2f), Vector3.down, out hits[3], enemyBounds.extents.y);
+                            int sucessPoint = 0;
+                            float avgDistance = 0, minDistance = 0;
+                            for(int scanCnt = 0; scanCnt < hits.Length; scanCnt++)
+                            {                                
+                                if(hits[scanCnt].transform?.tag == Constants.tagARCollider)
+                                {
+                                    sucessPoint++;
+                                    float distance = Mathf.Abs(tmp.y - hits[scanCnt].point.y);  //只算垂直距離
+                                    //Debug.Log(distance);
+                                    avgDistance += distance;
+                                    if(distance < minDistance)
+                                        minDistance = distance;
+                                    
+                                }                                
+                            }
+                            avgDistance /= sucessPoint; //計算平均距離
+                            
+                            if(sucessPoint >= hits.Length - 1 && (avgDistance - minDistance) <= 0.4f)   //必須通過3個點，且平均值-最小值誤差<0.4才可生成(無大的高低落差)
                             {
+                               
                                 ans = tmp;                                    
                                 return ans; //直接中斷送出目標位置點
                             }

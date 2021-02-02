@@ -47,6 +47,7 @@ public class GunAR : GunModel
 
 	public override void select()
 	{
+		sightAnime.SetBool(animeCtrlName, false);
 		Debug.Log("Select AR");
 		fireOK = true;
 	}
@@ -107,9 +108,12 @@ public class GunAR : GunModel
 				hitEnemy?.GetComponent<Enemy>()?.recvDamage(damage);
 				hitEnemy?.GetComponent<BoomBox>()?.recvDamage(damage);
 				//彈孔殘留效果，延遲5秒後消失(請參考ImpactShowDelay.cs)
-				GameObject impactDelay = impactPool.getObj();
-				impactDelay.transform.position = impactPos.position;
-				impactDelay.transform.rotation = impactPos.rotation;
+				if(hitEnemy.tag == Constants.tagARCollider)
+				{
+					GameObject impactDelay = impactPool.getObj();
+					impactDelay.transform.position = impactPos.position;
+					impactDelay.transform.rotation = impactPos.rotation;
+				}
 			}
 			hitEnemy = null;
 			timing += Time.deltaTime;
