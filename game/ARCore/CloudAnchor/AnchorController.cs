@@ -114,6 +114,9 @@ namespace MRGun.CloudAnchor
                 return;
             }
 
+            SingleObj<MRGun.CloudAnchor.NetworkManagerUIController>.obj.ShowDebugMessage(
+                    "請於現實中，將手機看向主機端所建立的原點處...");
+
             if (!m_CloudAnchorsExampleController.IsResolvingPrepareTimePassed())
             {
                 return;
@@ -129,7 +132,6 @@ namespace MRGun.CloudAnchor
                     m_CloudAnchorsExampleController.OnResolvingTimeoutPassed();
                 }
             }
-
             _ResolveAnchorFromId(m_CloudAnchorId);
         }
 

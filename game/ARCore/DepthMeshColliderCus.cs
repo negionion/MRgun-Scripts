@@ -337,6 +337,11 @@ public class DepthMeshColliderCus : MonoBehaviour
             return;
         }
 
+        if(m_GetDataCountdown > 0)
+        {
+            return;
+        }
+
         UpdateComputeShaderVariables();
 
         DepthProcessingCS.Dispatch(m_VertexFromDepthHandle, m_MeshWidth / k_NumThreadsX,

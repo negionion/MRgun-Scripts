@@ -17,14 +17,36 @@ public class GunAction : MonoBehaviour
 	public event EventHandler evtReload;
 	public event EventHandler<GunType> evtSelect;
 
+	private List<Action> fireActions;
+
 	void Awake()
 	{
-		gunCtrl.gunStateChangedEvt += OnGunStateChanged;    //掛載Event		
+		gunCtrl.gunStateChangedEvt += OnGunStateChanged;    //掛載Event	
+		if(fireActions == null)
+			fireActions = new List<Action>();
+		evtFire += OnFireAction;	
 	}
 
-    void Start()
+	public void addFireAction(Action actEvt)
 	{
-		evtSelect(this, GunType.AR);                        //預設裝備AR
+		
+		fireActions.Add(actEvt);
+	}
+
+	public void rmFireAction(Action actEvt)
+	{
+		fireActions.Remove(actEvt);
+	}
+
+	public void OnFireAction(object sender, bool isFire)
+	{
+		if(isFire && fireActions.Count > 0)
+		{
+			foreach(var fireEvt in fireActions)
+			{
+				fireEvt();
+			}
+		}
 	}
 
 	private void OnGunStateChanged(object sender, char state)

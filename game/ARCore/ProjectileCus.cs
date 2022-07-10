@@ -29,7 +29,7 @@ using UnityEngine;
 public class ProjectileCus : MonoBehaviour
 {
     private Rigidbody m_Rigidbody;
-    public bool isSetted {private set; get;}
+    public bool isSetted { private set; get; } = false;
 
     // Start is called before the first frame update
     private void Start()
@@ -37,19 +37,18 @@ public class ProjectileCus : MonoBehaviour
         m_Rigidbody = GetComponent<Rigidbody>();
         m_Rigidbody.velocity.Set(0, -1f, 0);
         Invoke("noGroundedDestroy", 3f);    //3秒內要著陸，不然要回收，代表沒碰到地面
-        isSetted = false;
         StartCoroutine(scanGrounded());
     }
 
     // Update is called once per frame
     private void Update()
     {
-        
+
     }
-    
+
     private IEnumerator scanGrounded()
     {
-        while(true)
+        while (true)
         {
             yield return new WaitForFixedUpdate();
             if (m_Rigidbody.velocity.y >= -0.1f && !m_Rigidbody.isKinematic)
@@ -57,7 +56,6 @@ public class ProjectileCus : MonoBehaviour
                 m_Rigidbody.isKinematic = true;
                 m_Rigidbody.useGravity = false;
                 GetComponent<Collider>().isTrigger = true;
-                CancelInvoke("noGroundedDestroy");
                 CreateAnchor();
                 isSetted = true;
                 yield break;
@@ -65,9 +63,22 @@ public class ProjectileCus : MonoBehaviour
         }
     }
 
-    private void noGroundedDestroy()
+    public void closeAutoCalibrate()    //關閉鋼體重力運算，使本物件靜止不動
     {
+        m_Rigidbody = GetComponent<Rigidbody>();
+        m_Rigidbody.isKinematic = true;
+        m_Rigidbody.useGravity = false;
+        m_Rigidbody.velocity = Vector3.zero;
+        GetComponent<Collider>().isTrigger = true;
+        CreateAnchor();
+        isSetted = true;
+    }
+
+    private void noGroundedDestroy()
+    {        
         StopAllCoroutines();
+        if(isSetted)
+            return;
         Destroy(gameObject);
     }
 
@@ -80,7 +91,7 @@ public class ProjectileCus : MonoBehaviour
         }
     }*/
 
-    private void CreateAnchor()
+    public void CreateAnchor()
     {
         Vector3 screenPoint = Camera.main.WorldToScreenPoint(transform.position);
 

@@ -32,6 +32,8 @@ public class BTManager : MonoBehaviour {
 			btSoc = BTsocket.getNewBTsocket(Constants.bleMicroBit, new BTprofile(Constants.bleMicroBit, true));
 			Invoke("delayScan", 2f);
 		}
+
+		//BLEStateUICtrl.addBLEstateUI(BTsocket.getBTsocket(Constants.bleMicroBit).gameObject);
 	}
 	
 	// Update is called once per frame

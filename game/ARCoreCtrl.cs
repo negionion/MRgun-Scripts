@@ -20,44 +20,43 @@
 
 using System.Collections.Generic;
 using GoogleARCore;
-using GoogleARCore.Examples.Common;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.SpatialTracking;
 
 /// <summary>
-/// Controls the HelloAR example.
+/// resolveRegiste -> multiPlayer -> resetPos -> setWorldOrigin -> resolveStart
+/// (UI--------------------------)  (Gun--------------------------------------)
 /// </summary>
 public class ARCoreCtrl : MonoBehaviour
 {
-	/// <summary>
-	/// The first-person camera being used to render the passthrough camera image (i.e. AR
-	/// background).
-	/// </summary>
-	public Camera FirstPersonCamera;
-
-	/// <summary>
-	/// The rotation in degrees need to apply to prefab when it is placed.
-	/// </summary>
-	private const float k_PrefabRotation = 180.0f;
-
 	/// <summary>
 	/// True if the app is in the process of quitting due to an ARCore connection error,
 	/// otherwise false.
 	/// </summary>
 	private bool m_IsQuitting = false;
 
-	/// <summary>
-	/// The Unity Awake() method.
-	/// </summary>
-	/// 
+	public static bool isPosReseted{get; private set;} = false;	//自身位置校準狀態旗標
+
+	public Vector3 m_deltaPos = Vector3.zero;
+	public static Vector3 standardDeltaPos = Vector3.zero;
+	public GameObject deltaObj, player;
+	private GameObject m_deltaObj;
 
 	public void Awake()
 	{
 		// Enable ARCore to target 60fps camera capture frame rate on supported devices.
 		// Note, Application.targetFrameRate is ignored when QualitySettings.vSyncCount != 0.
 		Application.targetFrameRate = 60;
+		Physics.queriesHitBackfaces = true;	//讓Raycast可以打到mesh的背面
+		Physics.queriesHitTriggers = true;	//讓Raycast可以打到Trigger
 		//InvokeRepeating("detectedCorner", 10f, 0.2f);
+	}
+
+	public void Start()
+	{
+		SingleObj<GunAction>.obj.addFireAction(resetPose);
 	}
 
 	/// <summary>
@@ -67,11 +66,49 @@ public class ARCoreCtrl : MonoBehaviour
 	{
 		_UpdateApplicationLifecycle();
 
+
 		//detectedCorner();
 		
 	}
 
-	/// 舊版生成怪物及場景碰撞，已棄用，射擊碰撞改到各種gun的腳本中，怪物生成改到EnemyGanerator
+	public void resetPose()
+	{
+		if(m_deltaPos == Vector3.zero)	//校準第一次點按，啟動校準功能
+		{
+			GameObject.Find("CAsDebugText").GetComponent<UnityEngine.UI.Text>().text = "before Pose:" + Camera.main.transform.position + "\n";
+			m_deltaPos = Camera.main.transform.position;
+			m_deltaPos.y -= 0.5f;
+			m_deltaObj = Instantiate(deltaObj);
+			m_deltaObj.transform.SetParent(null);
+			m_deltaObj.transform.SetPositionAndRotation(m_deltaPos, Quaternion.Euler(0, Camera.main.transform.rotation.y, 0));			
+			isPosReseted = false;
+			SingleObj<MRGun.CloudAnchor.NetworkManagerUIController>.obj.ShowDebugMessage(
+                    "請於現實中，將身體移到紅圈內\n再按下控制器板機，完成虛擬座標校準");
+		}
+		else							//校準第二次點按，完成校準
+		{
+			m_deltaPos = Camera.main.transform.position - m_deltaPos;
+			m_deltaPos.y = 0;
+			player.transform.position = m_deltaPos;
+			GameObject.Find("CAsDebugText").GetComponent<UnityEngine.UI.Text>().text += "after Pose:" + Camera.main.transform.position;
+			Destroy(m_deltaObj);
+			standardDeltaPos = m_deltaPos;
+			m_deltaPos = Vector3.zero;	//重置，再次點選即可重新校準
+			SingleObj<GunAction>.obj.rmFireAction(resetPose);
+			isPosReseted = true;
+			Invoke("delayStartSWO", 2f);	//延遲2秒後才將ARCore同步定位功能啟動
+		}
+	}
+
+	private void delayStartSWO()
+	{
+		CancelInvoke("delayStartSWO");
+		SingleObj<MRGun.CloudAnchor.NetworkManagerUIController>.obj.ShowDebugMessage(
+                    "請按下控制器板機，將於準心處放置虛擬世界原點...");
+		SingleObj<MRGun.CloudAnchor.CloudAnchorsExampleController>.obj.startSetWorldOrigin();		
+	}
+
+#region 舊版生成怪物及場景碰撞，已棄用，射擊碰撞改到各種gun的腳本中，怪物生成改到EnemyGanerator
 	/// ----------------------已棄用----------------------
 	/*private void detectedCorner()
 	{
@@ -158,18 +195,13 @@ public class ARCoreCtrl : MonoBehaviour
 
 	}*/
 	/// ----------------------已棄用-----------------------
+#endregion
 
 	/// <summary>
 	/// Check and update the application lifecycle.
 	/// </summary>
 	private void _UpdateApplicationLifecycle()
 	{
-		// Exit the app when the 'back' button is pressed.
-		if (Input.GetKey(KeyCode.Escape))
-		{
-			_DoQuit();
-		}
-
 		// Only allow the screen to sleep when not tracking.
 		if (Session.Status != SessionStatus.Tracking)
 		{
@@ -207,7 +239,7 @@ public class ARCoreCtrl : MonoBehaviour
 	/// </summary>
 	private void _DoQuit()
 	{
-		UnityEngine.SceneManagement.SceneManager.LoadScene("home");
+		//UnityEngine.SceneManagement.SceneManager.LoadScene("home");
 	}
 
 	/// <summary>

@@ -29,6 +29,7 @@ public class LinkButton : MonoBehaviour {
 			() =>
 			{
 				this.GetComponentInChildren<Text>().color = Color.blue;
+				BLEStateUICtrl.addBLEstateUI(BTsocket.getBTsocket(Constants.bleMicroBit).gameObject);
 			});
 		}
 		else

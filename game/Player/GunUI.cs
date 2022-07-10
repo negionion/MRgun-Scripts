@@ -19,14 +19,14 @@ public class GunUI : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        SingleObj<GunAction>.instance.evtSelect += OnSelect;
+        SingleObj<GunAction>.obj.evtSelect += OnSelect;
     }
 
     // Update is called once per frame
     void Update()
     {
 
-        gun = SingleObj<GunManager>.instance.gunMain;
+        gun = SingleObj<GunManager>.obj.gunMain;
 
         bullet.text = string.Format("{0}/{1}", gun.bullet, gun.bulletMax);
 

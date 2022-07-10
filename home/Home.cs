@@ -4,9 +4,10 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.XR;
+using UnityEngine.Networking;
 public class Home : MonoBehaviour
 {
-    public Button gameBtn;
+    public Button[] gameBtn;
     public Button gameModeBtn;
     [SerializeField]
     private bool debugMode = false;
@@ -22,8 +23,14 @@ public class Home : MonoBehaviour
         Screen.orientation = ScreenOrientation.Portrait;
 		
         if(!debugMode)
-            gameBtn.interactable = BTsocket.isConnectedBLE(Constants.bleMicroBit);
- 
+        {
+            foreach(var btn in gameBtn)
+            {
+                btn.interactable = BTsocket.isConnectedBLE(Constants.bleMicroBit);
+            }
+        }
+        
+        NetworkManager.Shutdown();
     }
 
     // Update is called once per frame
@@ -46,4 +53,5 @@ public class Home : MonoBehaviour
     {
         SceneManager.LoadSceneAsync(sceneName);
     }
+
 }

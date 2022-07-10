@@ -34,7 +34,8 @@ public class GunAR : GunModel
 			fireAudio.Stop();
 			sightAnime.SetBool(animeCtrlName, false);
 			muzzleFire.gameObject.SetActive(false);
-			impact.gameObject.SetActive(false);			
+			impact.gameObject.SetActive(false);	
+			//BTsocket.getBTsocket(Constants.bleMicroBit).writeCharacteristic("A0#");		
 		}
 		Debug.Log("Fire = " + isFire.ToString());
 	}
@@ -43,19 +44,24 @@ public class GunAR : GunModel
 	{
 		bullet = bulletMax;
 		Debug.Log("Reload");
+		//BTsocket.getBTsocket(Constants.bleMicroBit).writeCharacteristic("A1#");
 	}
 
 	public override void select()
 	{
 		sightAnime.SetBool(animeCtrlName, false);
-		Debug.Log("Select AR");
+		//Debug.Log("Select AR");
 		fireOK = true;
+		/*if(bullet > 0)
+			BTsocket.getBTsocket(Constants.bleMicroBit).writeCharacteristic("A1#");
+		else
+			BTsocket.getBTsocket(Constants.bleMicroBit).writeCharacteristic("A0#");*/
 	}
 
 	private IEnumerator fireAction()
 	{
 		// 更新AR環境碰撞體，等待3幀
-		SingleObj<DepthMeshColliderCus>.instance.ScanDepthCollider();
+		SingleObj<DepthMeshColliderCus>.obj.ScanDepthCollider();
 		yield return new WaitForSeconds(0.1f);
 
 		float timing = 0;
@@ -71,7 +77,7 @@ public class GunAR : GunModel
 		{
 			
 			raycastPose = getSightPosToScreen();
-			Debug.Log(raycastPose);
+			//Debug.Log(raycastPose);
 			ray = FirstPersonCamera.ScreenPointToRay(new Vector3(raycastPose.x, raycastPose.y, 0));
 			gameSceneFire(ray, shotDistance, 
 			(hit) =>
@@ -103,12 +109,14 @@ public class GunAR : GunModel
 				timing = 0;
 				bullet--;
 				//刷新AR的虛擬環境碰撞體(深度感測)
-				SingleObj<DepthMeshColliderCus>.instance.ScanDepthCollider();
-				//對怪物造成傷害
+				SingleObj<DepthMeshColliderCus>.obj.ScanDepthCollider();
+				//對目標造成傷害
 				hitEnemy?.GetComponent<Enemy>()?.recvDamage(damage);
 				hitEnemy?.GetComponent<BoomBox>()?.recvDamage(damage);
+				if(Game.mode != Mode.PVE)
+					hitEnemy?.GetComponentInParent<NetworkPlayer>()?.recvDamage(damage);
 				//彈孔殘留效果，延遲5秒後消失(請參考ImpactShowDelay.cs)
-				if(hitEnemy.tag == Constants.tagARCollider)
+				if(hitEnemy?.tag == Constants.tagARCollider)
 				{
 					GameObject impactDelay = impactPool.getObj();
 					impactDelay.transform.position = impactPos.position;

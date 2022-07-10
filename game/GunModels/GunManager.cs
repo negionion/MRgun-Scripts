@@ -15,9 +15,7 @@ public class GunManager : MonoBehaviour
 	// Start is called before the first frame update
 	void Awake()
     {
-		gunAction.evtFire += OnFire;
-		gunAction.evtSelect += OnSelect;
-		gunAction.evtReload += OnReload;		
+		InvokeRepeating("setGunEvt", 1f, 1f);	
 	}
 
     // Update is called once per frame
@@ -25,6 +23,19 @@ public class GunManager : MonoBehaviour
     {
         
     }
+
+	private void setGunEvt()
+	{
+		if(!MultiplayerCtrl.isConnected)
+			return;
+			
+		gunAction.evtFire += OnFire;
+		gunAction.evtSelect += OnSelect;
+		gunAction.evtReload += OnReload;
+
+		OnSelect(this, GunType.AR);                        //預設裝備AR
+		CancelInvoke("setGunEvt");
+	}
 
 	private void OnFire(object sender, bool isFire)
 	{
@@ -54,6 +65,7 @@ public class GunManager : MonoBehaviour
 		gunMain.gameObject.SetActive(true);
 		gunMain.select();
 	}
+	
 	private void OnReload(object sender, EventArgs e)
 	{
 		gunMain.reload();

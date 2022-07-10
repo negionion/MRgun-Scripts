@@ -49,7 +49,7 @@ namespace MRGun.CloudAnchor
 
             // A Name is provided to the Game Object so it can be found by other Scripts, since this
             // is instantiated as a prefab in the scene.
-            gameObject.name = "LocalPlayer";
+            gameObject.name = Constants.nameLocalPlayer;
             
             
         }
@@ -83,10 +83,12 @@ namespace MRGun.CloudAnchor
 #pragma warning disable 618
         [Command]
 #pragma warning restore 618
-        public void CmdSpawnStar(Vector3 position, Quaternion rotation)
+        public void CmdSpawnStar(Vector3 position, Quaternion rotation, uint id)
         {
+            
             // Instantiate Star model at the hit pose.
             var starObject = Instantiate(StarPrefab, position, rotation);
+            starObject.GetComponent<SpawnTest>().srcId = id;
 
             // Spawn the object in all clients.
 #pragma warning disable 618

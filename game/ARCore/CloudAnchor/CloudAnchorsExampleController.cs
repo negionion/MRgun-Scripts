@@ -146,6 +146,10 @@ namespace MRGun.CloudAnchor
         private CloudAnchorsNetworkManager m_NetworkManager;
 #pragma warning restore 618
 
+
+        [SerializeField]
+        private GameObject CloudAnchorSight;
+
         /// <summary>
         /// Enumerates modes the example application can be in.
         /// </summary>
@@ -237,6 +241,8 @@ namespace MRGun.CloudAnchor
             gameObject.name = "CloudAnchorsExampleController";
             ARCoreRoot.SetActive(false);
             _ResetStatus();
+
+            //SingleObj<GunAction>.instance.evtFire += OnSetCloudAnchor;  //用射擊動作的事件，註冊生成世界原點的功能
         }
 
         /// <summary>
@@ -262,13 +268,16 @@ namespace MRGun.CloudAnchor
             // once the preparation time passed.
             if (m_CurrentMode == ApplicationMode.Resolving && !m_PassedResolvingPreparedTime)
             {
+                if(!ARCoreCtrl.isPosReseted)    //尚未校準自身位置
+                {
+                    return;
+                }
                 m_TimeSinceStart += Time.deltaTime;
 
                 if (m_TimeSinceStart > k_ResolvingPrepareTime)
                 {
                     m_PassedResolvingPreparedTime = true;
-                    NetworkUIController.ShowDebugMessage(
-                        "Waiting for Cloud Anchor to be hosted...");
+                    NetworkUIController.ShowDebugMessage("Cloud Anchor 建立中...\n請稍後...");
                 }
             }
 
@@ -278,56 +287,104 @@ namespace MRGun.CloudAnchor
             {
                 return;
             }
+            #region 舊版
+            /*
+                // If the player has not touched the screen then the update is complete.
+                Touch touch;
+                if (Input.touchCount < 1 || (touch = Input.GetTouch(0)).phase != TouchPhase.Began)
+                {
+                    return;
+                }
 
-            // If the player has not touched the screen then the update is complete.
-            Touch touch;
-            if (Input.touchCount < 1 || (touch = Input.GetTouch(0)).phase != TouchPhase.Began)
-            {
-                return;
-            }
+                // Ignore the touch if it's pointing on UI objects.
+                if (EventSystem.current.IsPointerOverGameObject(touch.fingerId))
+                {
+                    return;
+                }
 
-            // Ignore the touch if it's pointing on UI objects.
-            if (EventSystem.current.IsPointerOverGameObject(touch.fingerId))
-            {
-                return;
-            }
+                TrackableHit arcoreHitResult = new TrackableHit();
+                m_LastHitPose = null;
 
-            TrackableHit arcoreHitResult = new TrackableHit();
-            m_LastHitPose = null;
+                // Raycast against the location the player touched to search for planes.
+                //手點螢幕的效果
+                if (Application.platform != RuntimePlatform.IPhonePlayer)
+                {
+                    if (ARCoreWorldOriginHelper.Raycast(touch.position.x, touch.position.y,
+                            TrackableHitFlags.PlaneWithinPolygon, out arcoreHitResult))
+                    {
+                        m_LastHitPose = arcoreHitResult.Pose;
+                    }
+                }
 
-            // Raycast against the location the player touched to search for planes.
-            //手點螢幕的效果
+                // If there was an anchor placed, then instantiate the corresponding object.
+                if (m_LastHitPose != null)
+                {
+                    // The first touch on the Hosting mode will instantiate the origin anchor. Any
+                    // subsequent touch will instantiate a star, both in Hosting and Resolving modes.
+                    if (_CanPlaceStars())
+                    {
+                        _InstantiateStar();
+
+                        GameObject.Find(Constants.nameLocalPlayer).GetComponent<MultiplayerCtrl>().CmdSpawnEnemy(Vector3.zero, Quaternion.identity, MultiplayerCtrl.getLocalNetId());
+
+                    }
+                    else if (!IsOriginPlaced && m_CurrentMode == ApplicationMode.Hosting)   //原點錨
+                    {
+                        if (Application.platform != RuntimePlatform.IPhonePlayer)
+                        {
+                            m_WorldOriginAnchor =
+                                arcoreHitResult.Trackable.CreateAnchor(arcoreHitResult.Pose);
+                        }
+
+                        SetWorldOrigin(m_WorldOriginAnchor.transform);  //定義世界原點
+                        _InstantiateAnchor();
+                        OnAnchorInstantiated(true);
+                    }
+                }
+            */
+            #endregion
+        }
+
+        public void startSetWorldOrigin()   //用射擊動作的事件，註冊生成世界原點的功能
+        {
+            SingleObj<GunAction>.obj.evtFire += OnSetCloudAnchor;  //用射擊動作的事件，註冊生成世界原點的功能
+        }
+
+        public void setWorldOriginCloudAnchor()
+        {
+            TrackableHitFlags raycastFilter = TrackableHitFlags.PlaneWithinPolygon;
+            TrackableHit hit = new TrackableHit();
             if (Application.platform != RuntimePlatform.IPhonePlayer)
             {
-                if (ARCoreWorldOriginHelper.Raycast(touch.position.x, touch.position.y,
-                        TrackableHitFlags.PlaneWithinPolygon, out arcoreHitResult))
+                if (ARCoreWorldOriginHelper.Raycast(Screen.width * 0.5f, Screen.height * 0.5f, raycastFilter, out hit))
                 {
-                    m_LastHitPose = arcoreHitResult.Pose;
+                    m_LastHitPose = hit.Pose;
                 }
             }
-
-            // If there was an anchor placed, then instantiate the corresponding object.
             if (m_LastHitPose != null)
             {
                 // The first touch on the Hosting mode will instantiate the origin anchor. Any
                 // subsequent touch will instantiate a star, both in Hosting and Resolving modes.
-                if (_CanPlaceStars())
-                {
-                    _InstantiateStar();
-                }
-                else if (!IsOriginPlaced && m_CurrentMode == ApplicationMode.Hosting)   //原點錨
+                if (!IsOriginPlaced && m_CurrentMode == ApplicationMode.Hosting)   //原點錨
                 {
                     if (Application.platform != RuntimePlatform.IPhonePlayer)
                     {
                         m_WorldOriginAnchor =
-                            arcoreHitResult.Trackable.CreateAnchor(arcoreHitResult.Pose);
+                            hit.Trackable.CreateAnchor(hit.Pose);
                     }
 
                     SetWorldOrigin(m_WorldOriginAnchor.transform);  //定義世界原點
                     _InstantiateAnchor();
                     OnAnchorInstantiated(true);
+                    CloudAnchorSight.SetActive(false);
                 }
             }
+        }
+
+        private void OnSetCloudAnchor(object sender, bool isFire)
+        {
+            if (isFire)
+                setWorldOriginCloudAnchor();
         }
 
         /// <summary>
@@ -357,6 +414,14 @@ namespace MRGun.CloudAnchor
             }
 
             IsOriginPlaced = true;
+
+            //<custom debug>----------------------------------------------------------------
+            SingleObj<GunAction>.obj.evtFire -= OnSetCloudAnchor;
+            CloudAnchorSight.SetActive(false);
+            MultiplayerCtrl.isConnected = true;
+            PersistentCloudAnchorsCtrl.resolveStartFlag = true; //確認定位皆已完成，啟動永久雲錨解析功能
+            SingleObj<MultiPlayerUICtrl>.obj.switchGamePanel();
+            //----------------------------------------------------------------
 
             if (Application.platform != RuntimePlatform.IPhonePlayer)
             {
@@ -396,9 +461,8 @@ namespace MRGun.CloudAnchor
                 return;
             }
 
-            NetworkUIController.ShowDebugMessage("Still resolving the anchor." +
-                "Please make sure you're looking at where the Cloud Anchor was hosted." +
-                "Or, try to re-join the room.");
+            NetworkUIController.ShowDebugMessage("Cloud Anchor 解析逾時...\n" +
+                "請確保手機在主機端建立的原點附近，並重新進入多人模式");
         }
 
         /// <summary>
@@ -480,12 +544,12 @@ namespace MRGun.CloudAnchor
             if (m_CurrentMode == ApplicationMode.Hosting)
             {
                 NetworkUIController.ShowDebugMessage(
-                    "Find a plane, tap to create a Cloud Anchor.");
+                    "請按下控制器板機，啟動虛擬座標校準系統...");
             }
             else if (m_CurrentMode == ApplicationMode.Resolving)
             {
                 NetworkUIController.ShowDebugMessage(
-                    "Look at the same scene as the hosting phone.");
+                    "請按下控制器板機，啟動虛擬座標校準系統...");
             }
             else
             {
@@ -493,6 +557,7 @@ namespace MRGun.CloudAnchor
                     "Connected to server with neither Hosting nor Resolving" +
                     "mode. Please start the app again.");
             }
+
         }
 
         /// <summary>
@@ -502,6 +567,11 @@ namespace MRGun.CloudAnchor
         {
             _ReturnToLobbyWithReason("Network session disconnected! " +
                 "Please start the app again and try another room.");
+
+            //----------------------------------------------------------------
+            MultiplayerCtrl.isConnected = false;
+
+            //----------------------------------------------------------------
         }
 
         /// <summary>
@@ -522,7 +592,7 @@ namespace MRGun.CloudAnchor
         {
             // Star must be spawned in the server so a networking Command is used.
             GameObject.Find("LocalPlayer").GetComponent<LocalPlayerController>()
-                .CmdSpawnStar(m_LastHitPose.Value.position, m_LastHitPose.Value.rotation);
+                .CmdSpawnStar(m_LastHitPose.Value.position, m_LastHitPose.Value.rotation, GameObject.Find("LocalPlayer").GetComponent<LocalPlayerController>().netId.Value);
         }
 
         /// <summary>
@@ -533,6 +603,9 @@ namespace MRGun.CloudAnchor
             if (Application.platform != RuntimePlatform.IPhonePlayer)
             {
                 ARCoreRoot.SetActive(true);
+
+                //<custom debug>
+                SingleObj<MultiPlayerUICtrl>.obj.debugMode();
             }
             else
             {
@@ -602,11 +675,6 @@ namespace MRGun.CloudAnchor
         /// </summary>
         private void _UpdateApplicationLifecycle()
         {
-            // Exit the app when the 'back' button is pressed.
-            if (Input.GetKey(KeyCode.Escape))
-            {
-                Application.Quit();
-            }
 
             var sleepTimeout = SleepTimeout.NeverSleep;
 
@@ -650,7 +718,6 @@ namespace MRGun.CloudAnchor
 
             NetworkUIController.ShowDebugMessage(reason);
             m_IsQuitting = true;
-            Invoke("_DoQuit", 5.0f);
         }
 
         /// <summary>
@@ -667,14 +734,6 @@ namespace MRGun.CloudAnchor
 
             NetworkUIController.ShowDebugMessage(reason);
             Invoke("_DoReturnToLobby", 3.0f);
-        }
-
-        /// <summary>
-        /// Actually quit the application.
-        /// </summary>
-        private void _DoQuit()
-        {
-            Application.Quit();
         }
 
         /// <summary>
