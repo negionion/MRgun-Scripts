@@ -1,4 +1,4 @@
-# SSoMR
+# MRG
 
 ## DEMO
 
