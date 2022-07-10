@@ -20,7 +20,9 @@ public class BulletBox : MonoBehaviour
     public void pickupAction(System.Action<float> pickupAction)
     {
         pickupAction(addBullet);
+        #if UNITY_ANDROID
         Handheld.Vibrate();
+        #endif
         Destroy(gameObject);
     }
 }

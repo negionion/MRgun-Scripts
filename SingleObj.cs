@@ -4,20 +4,20 @@ using UnityEngine;
 
 public class SingleObj<T> : MonoBehaviour where T : MonoBehaviour
 {
-	private static T _instance;
+	private static T _obj;
 
-	public static T instance
+	public static T obj
 	{
 		get
 		{
-			_instance = (T)FindObjectOfType(typeof(T));
-			if (_instance == null)
+			_obj = (T)FindObjectOfType(typeof(T));
+			if (_obj == null)
 			{
 				GameObject obj = new GameObject();
-				_instance = obj.AddComponent<T>();
+				_obj = obj.AddComponent<T>();
 				obj.name = typeof(T).ToString();
 			}
-			return _instance;
+			return _obj;
 		}
 	}
 }

@@ -8,7 +8,10 @@
     public const string layerMRcollider = "MRcollider";
     public const string tagPlayer = "Player";
     public const string tagEnemy = "Enemy";
-    public const string tagInitial = "Untagged";
+    public const string tagNetPlayer = "NetPlayer";
+    public const string nameLocalPlayer = "LocalPlayer";
+    public const uint nullNetId = 999999;
+    
 
 }
 

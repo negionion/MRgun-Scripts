@@ -40,7 +40,10 @@ namespace MRGun.CloudAnchor
         /// <summary>
         /// A prefab for tracking and visualizing detected planes.
         /// </summary>
-        public GameObject DetectedPlanePrefab;
+        //-----------------------------------------------------
+        //調整部分，關閉平面視覺化功能
+        //public GameObject DetectedPlanePrefab;
+        //-----------------------------------------------------
 
         /// <summary>
         /// A list to hold new planes ARCore began tracking in the current frame. This object is
@@ -80,7 +83,7 @@ namespace MRGun.CloudAnchor
             // Iterate over planes found in this frame and instantiate corresponding GameObjects to
             // visualize them.
             Session.GetTrackables<DetectedPlane>(m_NewPlanes, TrackableQueryFilter.New);
-            for (int i = 0; i < m_NewPlanes.Count; i++)
+            /*for (int i = 0; i < m_NewPlanes.Count; i++)
             {
                 // Instantiate a plane visualization prefab and set it to track the new plane. The
                 // transform is set to the origin with an identity rotation since the mesh for our
@@ -93,7 +96,7 @@ namespace MRGun.CloudAnchor
                 {
                     m_PlanesBeforeOrigin.Add(planeObject);
                 }
-            }
+            }*/
         }
 
         /// <summary>
@@ -131,6 +134,7 @@ namespace MRGun.CloudAnchor
             }
         }
 
+
         /// <summary>
         /// Performs a raycast against physical objects being tracked by ARCore. This function wraps
         /// <c>Frame.Raycast</c> to add the necessary offset if the WorldOrigin is moved when a
@@ -165,7 +169,7 @@ namespace MRGun.CloudAnchor
         /// </summary>
         /// <returns>A pose in Unity world space.</returns>
         /// <param name="pose">A pose in Anchor-relative space.</param>
-        private Pose _WorldToAnchorPose(Pose pose)
+        public Pose _WorldToAnchorPose(Pose pose)
         {
             if (!m_IsOriginPlaced)
             {

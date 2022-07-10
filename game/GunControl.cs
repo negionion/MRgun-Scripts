@@ -54,12 +54,12 @@ public class GunControl : MonoBehaviour
 
 		//---------使用鍵盤模擬輸入，測試用-----------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-		if (Input.inputString.Length > 0 && oldState != Input.inputString.ToCharArray()[0])
+		/*if (Input.inputString.Length > 0 && oldState != Input.inputString.ToCharArray()[0])
 		{
 			gunStateChangedEvt?.Invoke(this, Input.inputString.ToCharArray()[0]); //觸發事件，送出槍目前狀態
 			oldState = Input.inputString.ToCharArray()[0];
 			Debug.Log(Input.inputString);
-		}
+		}*/
 
 		//-------------------------------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

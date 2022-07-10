@@ -30,12 +30,17 @@ public class GunRF : GunModel
 
 			StartCoroutine(fireAction());
 		}
+		else if(bullet <= 0)
+		{
+			//BTsocket.getBTsocket(Constants.bleMicroBit).writeCharacteristic("S0#");
+		}
 	}
 
 	public override void reload()
 	{
 		bullet = bulletMax;
 		Debug.Log("Reload");
+		//BTsocket.getBTsocket(Constants.bleMicroBit).writeCharacteristic("S1#");
 	}
 
 	public override void select()
@@ -45,12 +50,16 @@ public class GunRF : GunModel
 			loaded = true;
 		Debug.Log("Select RF");
 		fireOK = true;
+		/*if(bullet > 0)
+			BTsocket.getBTsocket(Constants.bleMicroBit).writeCharacteristic("S1#");
+		else
+			BTsocket.getBTsocket(Constants.bleMicroBit).writeCharacteristic("S0#");*/
 	}
 
 	private IEnumerator fireAction()
 	{
 		// 更新AR環境碰撞體，等待3幀
-		SingleObj<DepthMeshColliderCus>.instance.ScanDepthCollider();
+		SingleObj<DepthMeshColliderCus>.obj.ScanDepthCollider();
 		yield return new WaitForSeconds(0.1f);
 
 		Vector2 raycastPose = getSightPosToScreen();
@@ -86,15 +95,19 @@ public class GunRF : GunModel
 		{
 			hitEnemy?.GetComponent<Enemy>()?.recvDamage(damage * 1.5f);
 			hitEnemy?.GetComponent<BoomBox>()?.recvDamage(damage * 1.5f);
+			if(Game.mode != Mode.PVE)
+			hitEnemy?.GetComponentInParent<NetworkPlayer>()?.recvDamage(damage * 1.5f);
 		}
 		else
 		{
 			hitEnemy?.GetComponent<Enemy>()?.recvDamage(damage);
 			hitEnemy?.GetComponent<BoomBox>()?.recvDamage(damage);
+			if(Game.mode != Mode.PVE)
+			hitEnemy?.GetComponentInParent<NetworkPlayer>()?.recvDamage(damage);
 		}
 
 		//彈孔殘留效果，延遲5秒後消失(請參考ImpactShowDelay.cs)
-		if(hitEnemy.tag == Constants.tagARCollider)
+		if(hitEnemy?.tag == Constants.tagARCollider)
 		{
 			GameObject impactDelay = impactPool.getObj();
 			impactDelay.transform.position = impactPos.position;

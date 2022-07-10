@@ -20,6 +20,15 @@ public class GameUI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            SingleObj<MRGun.CloudAnchor.NetworkManagerUIController>.obj.OnReturnToLobbyClick();
+            Invoke("doQuit", 2f);
+        }
+    }
+
+    public void doQuit()
+    {        
+        UnityEngine.SceneManagement.SceneManager.LoadScene("home");
     }
 }

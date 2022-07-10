@@ -175,12 +175,12 @@ namespace MRGun.CloudAnchor
         {
             if (isHost)
             {
-                SnackbarText.text = "Hosting Cloud Anchor...";
+                SnackbarText.text = "Cloud Anchor 建立中...";
             }
             else
             {
                 SnackbarText.text =
-                    "Cloud Anchor added to session! Attempting to resolve anchor...";
+                    "Cloud Anchor 解析中...";
             }
         }
 
@@ -194,11 +194,11 @@ namespace MRGun.CloudAnchor
         {
             if (success)
             {
-                SnackbarText.text = "Cloud Anchor successfully hosted! Tap to place more stars.";
+                SnackbarText.text = "Cloud Anchor 建立成功!";
             }
             else
             {
-                SnackbarText.text = "Cloud Anchor could not be hosted. " + response;
+                SnackbarText.text = "Cloud Anchor 建立失敗 : " + response;
             }
         }
 
@@ -212,12 +212,12 @@ namespace MRGun.CloudAnchor
         {
             if (success)
             {
-                SnackbarText.text = "Cloud Anchor successfully resolved! Tap to place more stars.";
+                SnackbarText.text = "Cloud Anchor 解析完畢!";
             }
             else
             {
                 SnackbarText.text =
-                    "Cloud Anchor could not be resolved. Will attempt again. " + response;
+                    "Cloud Anchor 解析失敗 : " + response;
             }
         }
 
@@ -318,7 +318,7 @@ namespace MRGun.CloudAnchor
 
             m_Manager.OnMatchCreate(success, extendedInfo, matchInfo);
             m_CurrentRoomNumber = _GetRoomNumberFromNetworkId(matchInfo.networkId);
-            SnackbarText.text = "Connecting to server...";
+            SnackbarText.text = "連線中...";
             _ChangeLobbyUIVisibility(false);
             CurrentRoomLabel.GetComponentInChildren<Text>().text = "Room: " + m_CurrentRoomNumber;
         }
@@ -342,7 +342,7 @@ namespace MRGun.CloudAnchor
 
             m_Manager.OnMatchJoined(success, extendedInfo, matchInfo);
             m_CurrentRoomNumber = _GetRoomNumberFromNetworkId(matchInfo.networkId);
-            SnackbarText.text = "Connecting to server...";
+            SnackbarText.text = "連線中...";
             _ChangeLobbyUIVisibility(false);
             CurrentRoomLabel.GetComponentInChildren<Text>().text = "Room: " + m_CurrentRoomNumber;
         }
@@ -367,7 +367,7 @@ namespace MRGun.CloudAnchor
 #pragma warning disable 618
             NetworkManager.Shutdown();
 #pragma warning restore 618
-            SceneManager.LoadScene("CloudAnchors");
+            //SceneManager.LoadScene("gameMulti");    //中斷房間連線 重新載入
         }
 
         /// <summary>
