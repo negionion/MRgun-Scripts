@@ -2,10 +2,11 @@
 
 ## DEMO
 
-[![SSoMR DEMO](https://img.youtube.com/vi/ID05CMPcqbk/0.jpg)](https://youtu.be/ID05CMPcqbk)
+[![SSoMR DEMO](https://img.youtube.com/vi/nCbOivdA3Gg/0.jpg)](https://youtu.be/nCbOivdA3Gg)
 
 ## Detail
 
+- 2人開發(硬體及軟體)
 - 藍芽控制
 - 多人模式同步與校準
 - 結合GCP儲存地圖資訊
