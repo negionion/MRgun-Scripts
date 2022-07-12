@@ -6,11 +6,11 @@ using GoogleARCore.CrossPlatform;
 using UnityEngine.Networking;
 
 
-// 資料表：https://docs.google.com/spreadsheets/d/1ezdzfJgoh6mLK1__156iDnQSdUdz7A09ZdWpfCZbzgk/edit#gid=0
+
 public class PersistentCloudAnchorsCtrl : MonoBehaviour
 {
     private Dictionary<string, string> resolveSet;    //<cloud ID, gameobject Name>
-    public string URL = "https://script.google.com/macros/s/AKfycbzB3s2X344DomkubvCuycm1iDmM0m2Z3foHGaNXYZeR-G8U5Mv0fUsR8mLE9aIqHxen3g/exec";
+    public string URL = "https://script.google.com/macros/s/your_exec_token/exec";  //please insert your cloud_exec token
     public GameObject[] cloudAnchorPrefabs;
 
     public static string sessionID = "";
